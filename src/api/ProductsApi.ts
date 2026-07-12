@@ -1,0 +1,96 @@
+import type { Pagination } from '@/interfaces/pagination'
+import type { Product } from '@/interfaces/product'
+import api from '@/config/axios'
+
+export interface ProductsPaginatedResponse {
+  products: Product[]
+  pagination: Pagination
+}
+
+function buildPagination(page: number, pageSize: number, totalItems: number): Pagination {
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+
+  return {
+    page,
+    page_size: pageSize,
+    total_items: totalItems,
+    total_pages: totalPages,
+    has_previous: page > 1,
+    has_next: page < totalPages,
+    previous_page: page > 1 ? page - 1 : null,
+    next_page: page < totalPages ? page + 1 : null,
+  }
+}
+
+function normalizeProductsPayload(payload: unknown): {
+  products: Product[]
+  pagination: Pagination
+} {
+  if (Array.isArray(payload)) {
+    return {
+      products: payload as Product[],
+      pagination: buildPagination(1, 20, (payload as Product[]).length),
+    }
+  }
+
+  if (payload && typeof payload === 'object') {
+    const data = payload as Record<string, unknown>
+    const rawProducts = (data.products ??
+      data.items ??
+      data.results ??
+      data.data ??
+      []) as Product[]
+    const paginationFromApi = (data.pagination ?? data.meta ?? null) as Partial<Pagination> | null
+    const totalItems = Number(paginationFromApi?.total_items ?? rawProducts.length)
+    const page = Number(paginationFromApi?.page ?? 1)
+    const pageSize = Number(paginationFromApi?.page_size ?? 20)
+
+    return {
+      products: rawProducts,
+      pagination: buildPagination(
+        page,
+        pageSize,
+        Number.isFinite(totalItems) ? totalItems : rawProducts.length,
+      ),
+    }
+  }
+
+  return {
+    products: [],
+    pagination: buildPagination(1, 20, 0),
+  }
+}
+
+export async function getProducts(
+  page: number,
+  pageSize: number,
+): Promise<ProductsPaginatedResponse> {
+  const response = await api.get('/products', {
+    params: {
+      page,
+      page_size: pageSize,
+    },
+  })
+
+  const normalized = normalizeProductsPayload(response.data)
+  const pageNumber = Math.max(1, page)
+  const pageSizeNumber = Math.max(1, pageSize)
+
+  return {
+    products: normalized.products,
+    pagination: {
+      ...normalized.pagination,
+      page: pageNumber,
+      page_size: pageSizeNumber,
+      has_previous: pageNumber > 1,
+      has_next: pageNumber < normalized.pagination.total_pages,
+      previous_page: pageNumber > 1 ? pageNumber - 1 : null,
+      next_page: pageNumber < normalized.pagination.total_pages ? pageNumber + 1 : null,
+    },
+  }
+}
+
+export async function getProduct(id: number): Promise<Product> {
+  const response = await api.get(`/products/${id}`)
+  return response.data as Product
+}
