@@ -19,7 +19,7 @@
         <span v-if="cartCount" class="badge badge-primary badge-xs absolute -right-2 -top-2">{{ cartCount }}</span>
       </router-link>
 
-      <details v-if="store.isAuthenticated" class="dropdown dropdown-end">
+      <details v-if="authStore.isAuthenticated" class="dropdown dropdown-end">
         <summary class="btn btn-ghost btn-circle btn-sm p-0">
           <div
             class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-rose-400 text-sm font-semibold text-white">
@@ -31,11 +31,12 @@
           <li><router-link to="/profile">Profile</router-link></li>
           <li><router-link to="/orders">Orders</router-link></li>
           <li><router-link to="/address">Addresses</router-link></li>
+          <li v-if="authStore.isAdmin"><router-link to="/admin">Admin</router-link></li>
           <li><button @click="handleLogout">Logout</button></li>
         </ul>
       </details>
 
-      <router-link v-else class="btn btn-primary btn-circle btn-sm" to="/login" aria-label="Login" title="Login">
+      <router-link v-else class="btn btn-primary btn-circle btn-sm" to="/signin" aria-label="Login" title="Login">
         <span class="text-base">🔐</span>
       </router-link>
     </div>
@@ -46,14 +47,16 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEcommerceStore } from '@/stores/ecommerce'
+import { useAuthStore } from '@/stores/auth'
 
 const store = useEcommerceStore()
+const authStore = useAuthStore()
 const router = useRouter()
 
 const cartCount = computed(() => store.cart.reduce((s, i) => s + i.quantity, 0))
 const wishlistCount = computed(() => store.wishlist.length)
 const initials = computed(() => {
-  const name = store.profile.name || 'User'
+  const name = authStore.user?.username || store.profile.name || 'User'
   return name
     .split(' ')
     .map((part) => part[0])
@@ -62,8 +65,9 @@ const initials = computed(() => {
     .toUpperCase()
 })
 
-function handleLogout() {
-  store.logout()
+async function handleLogout() {
+  await authStore.signOutUser()
+  store.resetProfile()
   router.push('/')
 }
 </script>

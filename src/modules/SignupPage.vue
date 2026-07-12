@@ -6,31 +6,42 @@
           <h1 class="text-3xl font-semibold">Create your account</h1>
           <p class="text-sm text-base-content/70">Join the store to save wishlist items, track orders, and checkout
             faster.</p>
-          <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
-            <div class="grid gap-4 md:grid-cols-2">
-              <label class="form-control">
-                <!-- <input v-model="form.username" class="input input-bordered" placeholder="Asha Kumar" required /> -->
-                <input v-model="form.username" class="input input-bordered" type="email" placeholder="you@example.com"
-                  required />
-              </label>
-              <label class="form-control">
-                <input v-model="form.password" class="input input-bordered" type="password"
-                  placeholder="Minimum 8 characters" required />
-              </label>
-            </div>
-            <div class="grid gap-4 md:grid-cols-2">
-              <!-- <label class="form-control">
-              </label> -->
-              <!-- <label class="form-control">
-                <input v-model="form.phone" class="input input-bordered" placeholder="+91 98765 43210" />
-              </label> -->
-            </div>
-            <!-- <label class="form-control">
-              <input v-model="form.referral" class="input input-bordered" placeholder="WELCOME10" />
-            </label> -->
 
-            <button :class="['mt-4 btn btn-primary w-full', { 'opacity-70': processing }]" type="submit">{{ processing ?
-              'Creating...' : 'Sign up' }}</button>
+          <form class="mt-6 space-y-4" @submit.prevent="onSubmit" novalidate>
+            <div v-if="formError.formError.value"
+              class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+              {{ formError.formError.value }}
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="form-control flex flex-col gap-1">
+                <input v-model="form.username" class="input input-bordered"
+                  :class="{ 'input-error': formError.fieldError('username') || usernameError }" type="text"
+                  placeholder="Username" required minlength="3" @blur="touched.username = true" />
+                <span v-if="usernameError" class="text-xs text-error">{{ usernameError }}</span>
+                <span v-else-if="formError.fieldError('username')" class="text-xs text-error">{{
+                  formError.fieldError('username') }}</span>
+              </label>
+              <label class="form-control flex flex-col gap-1">
+                <input v-model="form.email" class="input input-bordered"
+                  :class="{ 'input-error': formError.fieldError('email') || emailError }" type="email"
+                  placeholder="you@example.com" required @blur="touched.email = true" />
+                <span v-if="emailError" class="text-xs text-error">{{ emailError }}</span>
+                <span v-else-if="formError.fieldError('email')" class="text-xs text-error">{{
+                  formError.fieldError('email') }}</span>
+              </label>
+            </div>
+            <label class="form-control flex flex-col gap-1">
+              <input v-model="form.password" class="input input-bordered"
+                :class="{ 'input-error': formError.fieldError('password') || passwordError }" type="password"
+                placeholder="Minimum 8 characters" required minlength="8" @blur="touched.password = true" />
+              <span v-if="passwordError" class="text-xs text-error">{{ passwordError }}</span>
+              <span v-else-if="formError.fieldError('password')" class="text-xs text-error">{{
+                formError.fieldError('password') }}</span>
+            </label>
+
+            <button :class="['mt-4 btn btn-primary w-full', { 'opacity-70': processing }]" type="submit"
+              :disabled="processing">{{ processing ? 'Creating...' : 'Sign up' }}</button>
           </form>
         </div>
       </div>
@@ -50,26 +61,61 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import type { AuthUser } from '@/interfaces/auth'
+import { useEcommerceStore } from '@/stores/ecommerce'
+import { useFormErrors } from '@/composables/useFormErrors'
+import type { SignupPayload } from '@/interfaces/auth'
 
 const authStore = useAuthStore()
-
+const ecommerceStore = useEcommerceStore()
 const router = useRouter()
 const processing = ref(false)
+const formError = useFormErrors()
 
-const form = reactive<AuthUser>({
-  username: '',
-  password: '',
+const form = reactive<SignupPayload>({ username: '', email: '', password: '' })
+const touched = reactive({ username: false, email: false, password: false })
+
+const usernameError = computed(() => {
+  if (!touched.username) return ''
+  if (!form.username.trim()) return 'Username is required.'
+  if (form.username.trim().length < 3) return 'Username must be at least 3 characters.'
+  return ''
 })
 
+const emailError = computed(() => {
+  if (!touched.email) return ''
+  if (!form.email.trim()) return 'Email is required.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return 'Enter a valid email address.'
+  return ''
+})
+
+const passwordError = computed(() => {
+  if (!touched.password) return ''
+  if (form.password.length < 8) return 'Password must be at least 8 characters.'
+  return ''
+})
+
+function validate(): boolean {
+  touched.username = true
+  touched.email = true
+  touched.password = true
+  return !usernameError.value && !emailError.value && !passwordError.value
+}
+
 async function onSubmit() {
+  formError.clear()
+  if (!validate()) return
+
   processing.value = true
   try {
-    const ok = await authStore.signUpUser(form)
-    if (ok) router.push('/')
+    const user = await authStore.signUpUser(form)
+    ecommerceStore.showToast(`Account created for ${user.username}.`, 'success')
+    router.push('/')
+  } catch (err) {
+    const apiError = formError.setFromError(err)
+    ecommerceStore.showToast(apiError.message, 'error', 'Sign up failed')
   } finally {
     processing.value = false
   }

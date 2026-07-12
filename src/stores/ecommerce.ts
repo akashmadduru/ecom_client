@@ -72,8 +72,6 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
   const shippingAddressId = ref<number | null>(null)
   const paymentMethod = ref<'Card' | 'Cash on delivery' | 'Wallet'>('Card')
   const isLoaded = ref(false)
-  const isAuthenticated = ref(false)
-  const authToken = ref<string | null>(null)
   const isProcessing = ref<Record<string, boolean>>({})
   const toasts = ref<ToastMessage[]>([])
 
@@ -247,58 +245,7 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
     return newOrder
   }
 
-  // Authentication simulation - uses profile.json as mock backend
-  async function login(_email: string, _password: string) {
-    // simulate auth delay
-    isProcessing.value['auth'] = true
-    try {
-      await new Promise((r) => setTimeout(r, 600))
-      const resp = await fetch('/data/profile.json')
-      profile.value = await resp.json()
-      isAuthenticated.value = true
-      authToken.value = 'mock-token-' + Date.now()
-      showToast(`Welcome back, ${profile.value.name}!`, 'success')
-      return true
-    } finally {
-      isProcessing.value['auth'] = false
-    }
-  }
-
-  async function signup(data: Partial<ProfileData>) {
-    isProcessing.value['auth'] = true
-    try {
-      await new Promise((r) => setTimeout(r, 600))
-      profile.value = {
-        name: data.name ?? 'New User',
-        email: data.email ?? 'user@example.com',
-        phone: data.phone ?? '',
-        memberSince: new Date().getFullYear().toString(),
-        payment: data.payment ?? 'Card ending 4242',
-      }
-      isAuthenticated.value = true
-      authToken.value = 'mock-token-' + Date.now()
-      showToast(`Account created for ${profile.value.name}.`, 'success')
-      return true
-    } finally {
-      isProcessing.value['auth'] = false
-    }
-  }
-
-  function authenticateUser(nextProfile: Partial<ProfileData>, token: string) {
-    profile.value = {
-      name: nextProfile.name ?? 'Guest User',
-      email: nextProfile.email ?? 'guest@example.com',
-      phone: nextProfile.phone ?? '+91 9876543210',
-      memberSince: nextProfile.memberSince ?? '2026',
-      payment: nextProfile.payment ?? 'Card ending 4242',
-    }
-    isAuthenticated.value = true
-    authToken.value = token
-  }
-
-  function logout() {
-    isAuthenticated.value = false
-    authToken.value = null
+  function resetProfile() {
     profile.value = {
       name: 'Guest User',
       email: 'guest@example.com',
@@ -347,16 +294,10 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
     setFilters,
     resetFilters,
     applyFilters,
-    // auth
-    isAuthenticated,
-    authToken,
     isProcessing,
     toasts,
     showToast,
     removeToast,
-    login,
-    signup,
-    authenticateUser,
-    logout,
+    resetProfile,
   }
 })

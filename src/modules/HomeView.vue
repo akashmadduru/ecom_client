@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useProductStore } from '@/store/product'
+import { useProductStore } from '@/stores/product'
 import ProductCard from '@/components/ProductCard.vue'
 import PageHeader from '@/components/PageHeader.vue'
 

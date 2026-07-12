@@ -53,11 +53,19 @@
           description="Discover products with filters, smart sorting, and quick purchase actions.">
         </PageHeader>
 
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <SkeletonGrid v-if="productStore.loading && !productStore.products.length" :count="6" />
+
+        <ErrorState v-else-if="productStore.error" :message="productStore.error"
+          :on-retry="() => productStore.fetchProducts()" />
+
+        <EmptyState v-else-if="!filteredProducts.length" title="No products match your filters"
+          description="Try adjusting or clearing your filters to see more results." />
+
+        <div v-else class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
         </div>
 
-        <PaginationComponent />
+        <PaginationComponent v-if="filteredProducts.length" />
       </section>
     </div>
   </div>
@@ -65,10 +73,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useProductStore } from '@/store/product'
+import { useProductStore } from '@/stores/product'
 import PageHeader from '@/components/PageHeader.vue'
 import ProductCard from '@/components/ProductCard.vue'
 import PaginationComponent from '@/components/PaginationComponent.vue'
+import SkeletonGrid from '@/components/SkeletonGrid.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import ErrorState from '@/components/ErrorState.vue'
 import { useEcommerceStore } from '@/stores/ecommerce'
 
 const productStore = useProductStore()

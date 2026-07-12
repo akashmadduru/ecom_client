@@ -31,6 +31,7 @@
           <div class="flex items-center gap-2 text-sm text-base-content/70">
             <span class="badge badge-outline">⭐ {{ productStore.selectedProduct.rating }}</span>
             <span>Brand: {{ productStore.selectedProduct.brand }}</span>
+            <span v-if="stockBadge" class="badge" :class="stockBadge.class">{{ stockBadge.label }}</span>
           </div>
 
           <div class="space-y-2 rounded-lg bg-base-200 p-4">
@@ -57,13 +58,23 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useProductStore } from '@/store/product'
+import { useProductStore } from '@/stores/product'
 import { useEcommerceStore } from '@/stores/ecommerce'
+import { useInventoryStore } from '@/stores/inventory'
 
 const route = useRoute()
 const productStore = useProductStore()
 const ecommerceStore = useEcommerceStore()
+const inventoryStore = useInventoryStore()
 const activeImage = ref(0)
+
+const stockBadge = computed(() => {
+  const record = inventoryStore.selected
+  if (!record) return null
+  if (record.available_quantity <= 0) return { label: 'Out of stock', class: 'badge-error' }
+  if (record.status === 'LOW_STOCK') return { label: `Only ${record.available_quantity} left`, class: 'badge-warning' }
+  return { label: 'In stock', class: 'badge-success' }
+})
 
 const images = computed(() => productStore.selectedProductImageList)
 
@@ -97,5 +108,8 @@ function toggleWishlist() {
 onMounted(() => {
   const id = Number(route.params.id)
   productStore.fetchProduct(id)
+  inventoryStore.fetchByProduct(id).catch(() => {
+    // stock badge is a nice-to-have; ignore if no inventory record exists yet
+  })
 })
 </script>

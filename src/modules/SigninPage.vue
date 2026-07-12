@@ -12,6 +12,9 @@
               class="rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning-content">
               {{ googleHint }}
             </div>
+            <a class="btn btn-outline w-full" :href="authStore.googleAuthorizeRedirectUrl()">
+              Continue with Google (redirect)
+            </a>
             <div class="flex items-center gap-3 text-sm text-base-content/70">
               <div class="h-px flex-1 bg-white/10" />
               <span>or continue with email</span>
@@ -19,17 +22,28 @@
             </div>
           </div>
 
-          <form class="mt-6 flex flex-col space-y-4" @submit.prevent="onSubmit">
+          <form class="mt-6 flex flex-col space-y-4" @submit.prevent="onSubmit" novalidate>
+            <div v-if="formError.formError.value"
+              class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+              {{ formError.formError.value }}
+            </div>
+
             <label class="form-control flex flex-col gap-2">
-              <input v-model="form.username" class="input input-bordered" type="text" placeholder="Enter username"
-                required />
+              <input v-model="form.username" class="input input-bordered"
+                :class="{ 'input-error': formError.fieldError('username') }" type="text"
+                placeholder="Enter username" required />
+              <span v-if="formError.fieldError('username')" class="text-xs text-error">{{
+                formError.fieldError('username') }}</span>
             </label>
             <label class="form-control flex flex-col gap-2">
-              <input v-model="form.password" class="input input-bordered" type="password" placeholder="Enter password"
-                required />
+              <input v-model="form.password" class="input input-bordered"
+                :class="{ 'input-error': formError.fieldError('password') }" type="password"
+                placeholder="Enter password" required minlength="1" />
+              <span v-if="formError.fieldError('password')" class="text-xs text-error">{{
+                formError.fieldError('password') }}</span>
             </label>
-            <button :class="['btn btn-primary w-full', { 'opacity-70': processing }]" type="submit">{{ processing ?
-              'Signing in...' : 'Log in' }}</button>
+            <button :class="['btn btn-primary w-full', { 'opacity-70': processing }]" type="submit"
+              :disabled="processing">{{ processing ? 'Signing in...' : 'Log in' }}</button>
           </form>
           <p class="mt-4 text-sm text-base-content/70">
             New here? {{ ' ' }}
@@ -54,70 +68,48 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useEcommerceStore } from '@/stores/ecommerce'
-
-import type { AuthUser } from '@/interfaces/auth'
+import { useFormErrors } from '@/composables/useFormErrors'
+import type { SigninPayload } from '@/interfaces/auth'
 
 const authStore = useAuthStore()
 const ecommerceStore = useEcommerceStore()
 
 const router = useRouter()
+const route = useRoute()
 const processing = ref(false)
 const googleHint = ref('')
+const formError = useFormErrors()
 
-const form = reactive<AuthUser>({ username: '', password: '' })
-
-function decodeJwtPayload(token: string) {
-  const base64Payload = token.split('.')[1]
-  if (!base64Payload) {
-    return {}
-  }
-
-  const normalized = base64Payload.replace(/-/g, '+').replace(/_/g, '/')
-  const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')
-  const decoded = window.atob(padded)
-
-  return JSON.parse(decoded) as Record<string, unknown>
-}
+const form = reactive<SigninPayload>({ username: '', password: '' })
 
 async function onSubmit() {
+  formError.clear()
   processing.value = true
   try {
-    const response = await authStore.signInUser(form)
-    if (response?.isLoggedIn) {
-      ecommerceStore.authenticateUser(
-        {
-          name: response.user?.username ?? 'Member',
-          email: response.user?.username ?? 'member@example.com',
-          memberSince: new Date().getFullYear().toString(),
-        },
-        response.token,
-      )
-      router.push('/')
-    }
+    const user = await authStore.signInUser(form)
+    ecommerceStore.showToast(`Welcome back, ${user.username}!`, 'success')
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
+    router.push(redirect)
+  } catch (err) {
+    const apiError = formError.setFromError(err)
+    ecommerceStore.showToast(apiError.message, 'error', 'Sign in failed')
   } finally {
     processing.value = false
   }
 }
 
-function handleGoogleCredentialResponse(response: { credential: string }) {
-  const payload = decodeJwtPayload(response.credential)
-  const name = typeof payload.name === 'string' ? payload.name : ''
-  const email = typeof payload.email === 'string' ? payload.email : ''
-
-  const authResponse = authStore.signInWithGoogle(response.credential)
-  ecommerceStore.authenticateUser(
-    {
-      name: name || authResponse.user?.username || 'Google User',
-      email: email || authResponse.user?.username || 'google@example.com',
-      memberSince: new Date().getFullYear().toString(),
-    },
-    authResponse.token,
-  )
-  ecommerceStore.showToast(`Welcome, ${name || authResponse.user?.username || 'there'}!`, 'success')
-  router.push('/')
+async function handleGoogleCredentialResponse(response: { credential: string }) {
+  try {
+    const user = await authStore.signInWithGoogle(response.credential)
+    ecommerceStore.showToast(`Welcome, ${user.username}!`, 'success')
+    router.push('/')
+  } catch (err) {
+    const apiError = formError.setFromError(err)
+    ecommerceStore.showToast(apiError.message, 'error', 'Google sign-in failed')
+  }
 }
 
 function initializeGoogleButton() {

@@ -1,5 +1,10 @@
 import type { Pagination } from '@/interfaces/pagination'
-import type { Product } from '@/interfaces/product'
+import type {
+  CreateProductPayload,
+  Product,
+  ProductFilterParams,
+  UpdateProductPayload,
+} from '@/interfaces/product'
 import api from '@/config/axios'
 
 export interface ProductsPaginatedResponse {
@@ -64,11 +69,15 @@ function normalizeProductsPayload(payload: unknown): {
 export async function getProducts(
   page: number,
   pageSize: number,
+  filters: ProductFilterParams = {},
 ): Promise<ProductsPaginatedResponse> {
   const response = await api.get('/products', {
     params: {
       page,
       page_size: pageSize,
+      category: filters.category || undefined,
+      brand: filters.brand || undefined,
+      sort: filters.sort || undefined,
     },
   })
 
@@ -93,4 +102,22 @@ export async function getProducts(
 export async function getProduct(id: number): Promise<Product> {
   const response = await api.get(`/products/${id}`)
   return response.data as Product
+}
+
+export async function createProduct(payload: CreateProductPayload): Promise<Product> {
+  const response = await api.post('/products', payload)
+  return response.data as Product
+}
+
+export async function updateProduct(id: number, payload: UpdateProductPayload): Promise<Product> {
+  const response = await api.put(`/products/${id}`, payload)
+  return response.data as Product
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  await api.delete(`/products/${id}`)
+}
+
+export async function seedProducts(): Promise<void> {
+  await api.post('/admin/products/seed')
 }

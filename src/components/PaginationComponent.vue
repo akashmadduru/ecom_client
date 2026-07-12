@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useProductStore } from '@/store/product'
+import { useProductStore } from '@/stores/product'
 import { computed } from 'vue'
 
 const store = useProductStore()

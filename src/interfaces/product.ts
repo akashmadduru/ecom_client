@@ -14,3 +14,21 @@ export interface Product {
   rating: number
   brand: string
 }
+
+export interface CreateProductPayload {
+  product_name: string
+  retail_price: number
+  discount: number
+  category: string
+  sub_category: string
+  brand: string
+  description: string
+}
+
+export type UpdateProductPayload = Partial<CreateProductPayload>
+
+export interface ProductFilterParams {
+  category?: string
+  brand?: string
+  sort?: string
+}
