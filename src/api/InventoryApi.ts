@@ -1,4 +1,5 @@
 import api from '@/config/axios'
+import { buildPagination } from '@/utils/pagination'
 import type { Pagination } from '@/interfaces/pagination'
 import type {
   AdjustStockPayload,
@@ -16,20 +17,6 @@ import type {
 export interface InventoryPaginatedResponse {
   items: InventoryRecord[]
   pagination: Pagination
-}
-
-function buildPagination(page: number, pageSize: number, totalItems: number): Pagination {
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-  return {
-    page,
-    page_size: pageSize,
-    total_items: totalItems,
-    total_pages: totalPages,
-    has_previous: page > 1,
-    has_next: page < totalPages,
-    previous_page: page > 1 ? page - 1 : null,
-    next_page: page < totalPages ? page + 1 : null,
-  }
 }
 
 function normalizeInventoryListPayload(
@@ -86,9 +73,17 @@ export async function listInventory(
   page: number,
   pageSize: number,
   status?: InventoryStatus | '',
+  warehouseLocation?: string,
+  signal?: AbortSignal,
 ): Promise<InventoryPaginatedResponse> {
   const response = await api.get('/inventory', {
-    params: { page, page_size: pageSize, status: status || undefined },
+    params: {
+      page,
+      page_size: pageSize,
+      status: status || undefined,
+      warehouse_location: warehouseLocation || undefined,
+    },
+    signal,
   })
   return normalizeInventoryListPayload(response.data, page, pageSize)
 }

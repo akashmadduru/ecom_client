@@ -6,25 +6,11 @@ import type {
   UpdateProductPayload,
 } from '@/interfaces/product'
 import api from '@/config/axios'
+import { buildPagination } from '@/utils/pagination'
 
 export interface ProductsPaginatedResponse {
   products: Product[]
   pagination: Pagination
-}
-
-function buildPagination(page: number, pageSize: number, totalItems: number): Pagination {
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-
-  return {
-    page,
-    page_size: pageSize,
-    total_items: totalItems,
-    total_pages: totalPages,
-    has_previous: page > 1,
-    has_next: page < totalPages,
-    previous_page: page > 1 ? page - 1 : null,
-    next_page: page < totalPages ? page + 1 : null,
-  }
 }
 
 function normalizeProductsPayload(payload: unknown): {
@@ -70,6 +56,7 @@ export async function getProducts(
   page: number,
   pageSize: number,
   filters: ProductFilterParams = {},
+  signal?: AbortSignal,
 ): Promise<ProductsPaginatedResponse> {
   const response = await api.get('/products', {
     params: {
@@ -77,8 +64,13 @@ export async function getProducts(
       page_size: pageSize,
       category: filters.category || undefined,
       brand: filters.brand || undefined,
+      brand_id: filters.brand_id || undefined,
+      category_id: filters.category_id || undefined,
+      min_price: filters.min_price || undefined,
+      max_price: filters.max_price || undefined,
       sort: filters.sort || undefined,
     },
+    signal,
   })
 
   const normalized = normalizeProductsPayload(response.data)
