@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <aside class="card shadow-2xl">
+      <aside class="card shadow-sm">
         <div class="card-body space-y-6">
           <div>
-            <h2 class="text-xl font-semibold text-white">Filters</h2>
+            <h2 class="text-xl font-semibold">Filters</h2>
             <p class="text-sm text-base-content/70">Refine your search</p>
           </div>
 
@@ -65,7 +65,8 @@
           <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
         </div>
 
-        <PaginationComponent v-if="filteredProducts.length" />
+        <PaginationComponent v-if="filteredProducts.length" :pagination="productStore.pagination" item-label="products"
+          @change="productStore.goTo" />
       </section>
     </div>
   </div>

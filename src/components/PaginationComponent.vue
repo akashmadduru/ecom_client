@@ -1,51 +1,77 @@
 <script setup lang="ts">
-import { useProductStore } from '@/stores/product'
 import { computed } from 'vue'
+import type { Pagination } from '@/interfaces/pagination'
 
-const store = useProductStore()
+const props = withDefaults(
+  defineProps<{
+    pagination: Pagination
+    itemLabel?: string
+    maxButtons?: number
+  }>(),
+  { itemLabel: 'items', maxButtons: 5 },
+)
+
+const emit = defineEmits<{
+  change: [page: number]
+}>()
 
 const visiblePages = computed(() => {
-  const current = store.pagination.page
-  const total = store.pagination.total_pages
+  const current = props.pagination.page
+  const total = props.pagination.total_pages
+  const span = Math.max(1, props.maxButtons)
 
-  let start = Math.max(1, current - 2)
-  const end = Math.min(total, start + 4)
+  let start = Math.max(1, current - Math.floor(span / 2))
+  const end = Math.min(total, start + span - 1)
 
-  if (end - start < 4) {
-    start = Math.max(1, end - 4)
+  if (end - start < span - 1) {
+    start = Math.max(1, end - (span - 1))
   }
 
-  return Array.from(
-    { length: end - start + 1 },
-    (_, i) => start + i
-  )
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i)
 })
+
+function goTo(page: number) {
+  if (page >= 1 && page <= props.pagination.total_pages && page !== props.pagination.page) {
+    emit('change', page)
+  }
+}
+
+function previous() {
+  if (props.pagination.has_previous && props.pagination.previous_page) {
+    emit('change', props.pagination.previous_page)
+  }
+}
+
+function next() {
+  if (props.pagination.has_next && props.pagination.next_page) {
+    emit('change', props.pagination.next_page)
+  }
+}
 </script>
 
 <template>
-  <div v-if="store.pagination.total_pages > 1" class="mt-8 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-    <button class="btn btn-outline btn-sm min-w-24" :disabled="!store.pagination.has_previous"
-      @click="store.previous()">
+  <div v-if="pagination.total_pages > 1" class="mt-8 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+    <button class="btn btn-outline btn-sm min-w-24" :disabled="!pagination.has_previous" @click="previous()">
       Previous
     </button>
 
     <div class="flex flex-wrap items-center justify-center gap-2">
-      <button v-for="page in visiblePages" :key="page" @click="store.goTo(page)"
-        class="btn btn-sm h-10 w-10 border border-white/10 transition-all duration-200" :class="page === store.pagination.page
-          ? 'btn-primary text-white shadow-lg'
-          : 'btn-ghost text-base-content/80 hover:bg-white/10 hover:text-white'">
+      <button v-for="page in visiblePages" :key="page" @click="goTo(page)"
+        class="btn btn-sm h-10 w-10 border border-base-300 transition-all duration-200" :class="page === pagination.page
+          ? 'btn-primary text-white shadow-sm'
+          : 'btn-ghost text-base-content/80 hover:bg-base-200 hover:text-base-content'">
         {{ page }}
       </button>
     </div>
 
-    <button class="btn btn-outline btn-sm min-w-24" :disabled="!store.pagination.has_next" @click="store.next()">
+    <button class="btn btn-outline btn-sm min-w-24" :disabled="!pagination.has_next" @click="next()">
       Next
     </button>
   </div>
 
   <p class="mt-4 text-center text-sm text-base-content/70">
-    Page {{ store.pagination.page }}
-    of {{ store.pagination.total_pages }}
-    • {{ store.pagination.total_items }} products
+    Page {{ pagination.page }}
+    of {{ pagination.total_pages }}
+    • {{ pagination.total_items }} {{ itemLabel }}
   </p>
 </template>

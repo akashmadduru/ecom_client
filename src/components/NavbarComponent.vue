@@ -1,7 +1,7 @@
 <template>
-  <div class="navbar mx-auto w-[95%] max-w-7xl px-4 shadow-2xl">
+  <div class="navbar mx-auto w-[95%] max-w-7xl px-4 shadow-sm">
     <div class="flex-1">
-      <router-link to="/" class="btn btn-ghost text-xl font-semibold">Northstar</router-link>
+      <router-link to="/" class="btn btn-ghost text-xl font-semibold">Ecommerce</router-link>
     </div>
 
     <div class="flex items-center gap-2">
@@ -27,7 +27,7 @@
           </div>
         </summary>
         <ul
-          class="menu dropdown-content z-[1] mt-3 w-48 rounded-box border border-white/10 bg-base-200/95 p-2 shadow-2xl backdrop-blur">
+          class="menu dropdown-content z-[1] mt-3 w-48 rounded-box border border-base-300 bg-base-100 p-2 shadow-md">
           <li><router-link to="/profile">Profile</router-link></li>
           <li><router-link to="/orders">Orders</router-link></li>
           <li><router-link to="/address">Addresses</router-link></li>

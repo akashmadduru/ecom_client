@@ -40,8 +40,8 @@ export const useProductStore = defineStore('products', () => {
       selectedProduct.value = response
       try {
         selectedProductImageList.value = JSON.parse(response.image_urls)
-      } catch (e) {
-        console.log(e)
+      } catch {
+        selectedProductImageList.value = []
       }
     } catch (err) {
       error.value = normalizeApiError(err).message

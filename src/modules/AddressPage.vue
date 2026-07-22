@@ -6,10 +6,10 @@
 
       <div class="grid gap-6 lg:grid-cols-2">
         <div v-for="address in ecommerceStore.addresses" :key="address.id"
-          class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+          class="card border border-base-300 bg-base-100 shadow-sm">
           <div class="card-body">
             <div class="flex items-center justify-between">
-              <h2 class="card-title text-white">{{ address.label }}</h2>
+              <h2 class="card-title text-base-content">{{ address.label }}</h2>
               <span class="badge badge-outline">{{ address.type }}</span>
             </div>
             <p class="text-sm text-base-content/70">{{ address.street }}</p>

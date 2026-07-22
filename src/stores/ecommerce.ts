@@ -5,7 +5,7 @@ import { filterAndSortProducts, type ProductFilters } from '@/utils/productFilte
 
 export interface CartItem {
   id: number
-  product_name: string
+  title: string
   retail_price: number
   quantity: number
   image_urls: string
@@ -15,7 +15,7 @@ export interface CartItem {
 
 export interface WishlistItem {
   id: number
-  product_name: string
+  title: string
   retail_price: number
   image_urls: string
   brand: string
@@ -119,25 +119,25 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
     const existing = cart.value.find((item) => item.id === product.id)
     if (existing) {
       existing.quantity += 1
-      showToast(`Updated quantity for ${product.product_name}.`, 'info')
+      showToast(`Updated quantity for ${product.title}.`, 'info')
       return
     }
 
     cart.value.push({
       id: product.id,
-      product_name: product.product_name,
+      title: product.title,
       retail_price: product.retail_price,
       quantity: 1,
       image_urls: product.image_urls,
       brand: product.brand,
       category: product.category,
     })
-    showToast(`Added ${product.product_name} to cart.`, 'success')
+    showToast(`Added ${product.title} to cart.`, 'success')
   }
 
   function addToCartFromItem(item: {
     id: number
-    product_name: string
+    title: string
     retail_price: number
     image_urls: string
     brand?: string
@@ -152,14 +152,14 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
 
     cart.value.push({
       id: item.id,
-      product_name: item.product_name,
+      title: item.title,
       retail_price: item.retail_price,
       quantity: 1,
       image_urls: item.image_urls,
       brand: item.brand ?? 'Unknown',
       category: item.category ?? 'General',
     })
-    showToast(`Added ${item.product_name} to cart.`, 'success')
+    showToast(`Added ${item.title} to cart.`, 'success')
   }
 
   function removeFromCart(productId: number) {
@@ -182,19 +182,19 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
     const existing = wishlist.value.find((item) => item.id === product.id)
     if (existing) {
       wishlist.value = wishlist.value.filter((item) => item.id !== product.id)
-      showToast(`Removed ${product.product_name} from wishlist.`, 'warning')
+      showToast(`Removed ${product.title} from wishlist.`, 'warning')
       return
     }
 
     wishlist.value.push({
       id: product.id,
-      product_name: product.product_name,
+      title: product.title,
       retail_price: product.retail_price,
       image_urls: product.image_urls,
       brand: product.brand,
       category: product.category,
     })
-    showToast(`Saved ${product.product_name} to wishlist.`, 'success')
+    showToast(`Saved ${product.title} to wishlist.`, 'success')
   }
 
   function removeFromWishlist(productId: number) {

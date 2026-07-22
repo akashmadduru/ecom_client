@@ -4,13 +4,13 @@
       <div class="space-y-4">
         <div class="card bg-base-100 shadow-xl">
           <figure class="p-4">
-            <img :src="images[activeImage]" alt="" class="h-80 w-full rounded-xl object-cover" />
+            <AppImage :src="images[activeImage]" alt="" :raw="false" img-class="h-80 w-full rounded-xl object-cover" />
           </figure>
         </div>
         <div class="flex flex-wrap gap-3">
           <button v-for="(image, index) in images" :key="image" class="h-20 w-20 overflow-hidden rounded-lg border-2"
             :class="activeImage === index ? 'border-primary' : 'border-transparent'" @click="activeImage = index">
-            <img :src="image" alt="" class="h-full w-full object-cover" />
+            <AppImage :src="image" alt="" :raw="false" img-class="h-full w-full object-cover" />
           </button>
         </div>
       </div>
@@ -19,7 +19,7 @@
         <div class="card-body space-y-4">
           <div class="space-y-2">
             <p class="text-sm uppercase tracking-[0.3em] text-primary">{{ productStore.selectedProduct.category }}</p>
-            <h1 class="text-3xl font-semibold">{{ productStore.selectedProduct.product_name.substring(0, 30) }}</h1>
+            <h1 class="text-3xl font-semibold">{{ productStore.selectedProduct.title.substring(0, 30) }}</h1>
             <p class="text-sm text-base-content/70">{{ productStore.selectedProduct.description }}</p>
           </div>
 
@@ -61,6 +61,8 @@ import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useEcommerceStore } from '@/stores/ecommerce'
 import { useInventoryStore } from '@/stores/inventory'
+import AppImage from '@/components/AppImage.vue'
+import { resolveImageUrls } from '@/utils/image'
 
 const route = useRoute()
 const productStore = useProductStore()
@@ -76,7 +78,7 @@ const stockBadge = computed(() => {
   return { label: 'In stock', class: 'badge-success' }
 })
 
-const images = computed(() => productStore.selectedProductImageList)
+const images = computed(() => resolveImageUrls(productStore.selectedProduct?.image_urls))
 
 const isProcessing = computed(() => {
   const id = productStore.selectedProduct?.id

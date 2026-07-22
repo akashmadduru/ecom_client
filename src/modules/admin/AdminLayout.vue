@@ -1,18 +1,32 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-      <aside class="card h-fit shadow-2xl">
-        <div class="card-body space-y-1">
-          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary">Admin</p>
-          <router-link v-for="link in links" :key="link.to" :to="link.to"
-            class="rounded-lg px-3 py-2 text-sm transition"
-            :class="isActive(link.to) ? 'bg-primary/20 font-semibold text-white' : 'text-base-content/70 hover:bg-white/10 hover:text-white'">
-            {{ link.label }}
-          </router-link>
+      <aside class="card h-fit shadow-sm">
+        <div class="card-body space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Admin</p>
+
+          <nav v-for="section in sections" :key="section.heading" class="space-y-1">
+            <p class="px-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-base-content/40">
+              {{ section.heading }}
+            </p>
+            <router-link v-for="item in section.items" :key="item.to" :to="item.to"
+              class="block rounded-lg px-3 py-2 text-sm transition-colors"
+              :class="isActive(item) ? 'bg-primary/10 font-semibold text-primary' : 'text-base-content/70 hover:bg-base-200 hover:text-base-content'">
+              {{ item.label }}
+            </router-link>
+          </nav>
+
+          <div class="border-t border-base-300 pt-3">
+            <router-link to="/"
+              class="block rounded-lg px-3 py-2 text-sm text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content">
+              ← Back to store
+            </router-link>
+          </div>
         </div>
       </aside>
 
-      <section>
+      <section class="space-y-6">
+        <AdminBreadcrumbs />
         <router-view />
       </section>
     </div>
@@ -21,20 +35,52 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue'
+
+interface NavItem {
+  to: string
+  label: string
+  /** Route names that mark this item active — guarantees exactly one active item per route. */
+  names: string[]
+}
+
+interface NavSection {
+  heading: string
+  items: NavItem[]
+}
 
 const route = useRoute()
 
-const links = [
-  { to: '/admin', label: 'Overview' },
-  { to: '/admin/products', label: 'Products' },
-  { to: '/admin/inventory', label: 'Inventory' },
-  { to: '/admin/inventory/bulk-update', label: 'Bulk update' },
-  { to: '/admin/inventory/health-report', label: 'Health report' },
-  { to: '/admin/inventory/reports', label: 'Stock reports' },
-  { to: '/admin/diagnostics', label: 'Diagnostics' },
+const sections: NavSection[] = [
+  {
+    heading: 'Overview',
+    items: [{ to: '/admin', label: 'Dashboard', names: ['admin-dashboard'] }],
+  },
+  {
+    heading: 'Catalog',
+    items: [
+      { to: '/admin/products', label: 'Products', names: ['admin-products', 'admin-product-create', 'admin-product-edit'] },
+      { to: '/admin/brands', label: 'Brands', names: ['admin-brands', 'admin-brand-create', 'admin-brand-edit'] },
+      { to: '/admin/manufacturers', label: 'Manufacturers', names: ['admin-manufacturers', 'admin-manufacturer-create', 'admin-manufacturer-edit'] },
+      { to: '/admin/tags', label: 'Tags', names: ['admin-tags', 'admin-tag-create', 'admin-tag-edit'] },
+    ],
+  },
+  {
+    heading: 'Inventory',
+    items: [
+      { to: '/admin/inventory', label: 'Inventory', names: ['admin-inventory', 'admin-inventory-create', 'admin-inventory-detail'] },
+      { to: '/admin/inventory/bulk-update', label: 'Bulk update', names: ['admin-inventory-bulk-update'] },
+      { to: '/admin/inventory/health-report', label: 'Health report', names: ['admin-inventory-health-report'] },
+      { to: '/admin/inventory/reports', label: 'Stock reports', names: ['admin-inventory-reports'] },
+    ],
+  },
+  {
+    heading: 'System',
+    items: [{ to: '/admin/diagnostics', label: 'Diagnostics', names: ['admin-diagnostics'] }],
+  },
 ]
 
-function isActive(to: string) {
-  return to === '/admin' ? route.path === '/admin' : route.path.startsWith(to)
+function isActive(item: NavItem): boolean {
+  return typeof route.name === 'string' && item.names.includes(route.name)
 }
 </script>

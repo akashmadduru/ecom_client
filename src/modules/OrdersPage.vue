@@ -9,7 +9,7 @@
       </PageHeader>
 
       <div v-if="ecommerceStore.orders.length"
-        class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+        class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
         <table class="table">
           <thead>
             <tr>
@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             <tr v-for="order in ecommerceStore.orders" :key="order.id">
-              <td class="font-semibold text-white">{{ order.id }}</td>
+              <td class="font-semibold text-base-content">{{ order.id }}</td>
               <td>{{ order.date }}</td>
               <td>
                 <span class="badge" :class="order.status === 'Delivered' ? 'badge-success' : 'badge-warning'">{{
@@ -39,8 +39,8 @@
       </div>
 
       <div v-else
-        class="rounded-[1.6rem] border border-white/10 bg-white/5 p-10 text-center shadow-2xl backdrop-blur-xl">
-        <h2 class="text-2xl font-semibold text-white">No orders yet</h2>
+        class="rounded-[1.6rem] border border-base-300 bg-base-100 p-10 text-center shadow-sm">
+        <h2 class="text-2xl font-semibold text-base-content">No orders yet</h2>
         <p class="mt-2 text-base-content/70">Your completed purchases will appear here once you place an order.</p>
       </div>
     </div>

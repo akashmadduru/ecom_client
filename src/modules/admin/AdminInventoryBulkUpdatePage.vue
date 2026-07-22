@@ -3,7 +3,7 @@
     <PageHeader eyebrow="Admin · Inventory" title="Bulk update reorder thresholds"
       description="Update reorder thresholds for multiple products in one request." />
 
-    <div class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+    <div class="card border border-base-300 bg-base-100 shadow-sm">
       <div class="card-body space-y-4">
         <div v-if="formError.formError.value"
           class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
@@ -20,11 +20,20 @@
             <input v-model.number="item.reorder_threshold" type="number" min="0"
               class="input input-bordered input-sm" />
           </label>
+          <label class="form-control flex flex-col gap-1">
+            <span class="label-text">Safety stock</span>
+            <input v-model.number="item.safety_stock" type="number" min="0" class="input input-bordered input-sm" />
+          </label>
+          <label class="form-control flex flex-col gap-1">
+            <span class="label-text">Warehouse location</span>
+            <input v-model="item.warehouse_location" class="input input-bordered input-sm" />
+          </label>
           <button class="btn btn-ghost btn-sm text-error" :disabled="items.length === 1"
             @click="items.splice(index, 1)">Remove</button>
         </div>
 
-        <button class="btn btn-outline btn-sm" @click="items.push({ product_id: 0, reorder_threshold: 0 })">
+        <button class="btn btn-outline btn-sm"
+          @click="items.push({ product_id: 0, reorder_threshold: 0, safety_stock: 0, warehouse_location: '' })">
           + Add row
         </button>
 
@@ -53,11 +62,20 @@ const ecommerceStore = useEcommerceStore()
 const formError = useFormErrors()
 const submitting = ref(false)
 
-const items = reactive<BulkUpdateItem[]>([{ product_id: 0, reorder_threshold: 0 }])
+const items = reactive<BulkUpdateItem[]>([
+  { product_id: 0, reorder_threshold: 0, safety_stock: 0, warehouse_location: '' },
+])
 
 async function onSubmit() {
   formError.clear()
-  const validItems = items.filter((item) => item.product_id > 0)
+  const validItems = items
+    .filter((item) => item.product_id > 0)
+    .map((item) => ({
+      product_id: item.product_id,
+      reorder_threshold: item.reorder_threshold,
+      safety_stock: item.safety_stock,
+      warehouse_location: item.warehouse_location?.trim() || undefined,
+    }))
   if (!validItems.length) {
     ecommerceStore.showToast('Add at least one valid product ID.', 'warning')
     return

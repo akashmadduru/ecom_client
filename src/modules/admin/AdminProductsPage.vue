@@ -12,88 +12,170 @@
       </template>
     </PageHeader>
 
-    <SkeletonTable v-if="productStore.loading && !productStore.products.length" :rows="6" />
+    <DataTable :controller="controller" :columns="columns" empty-title="No products yet"
+      empty-description="Create a product or seed demo data to get started.">
+      <template #toolbar>
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="text-base-content/70">Brand</span>
+            <select class="select select-bordered select-sm min-w-40" :value="brandFilter" @change="onBrandChange">
+              <option value="">All brands</option>
+              <option v-for="brand in brandStore.brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="text-base-content/70">Min price</span>
+            <input v-model="minPrice" type="number" min="0" inputmode="numeric" placeholder="0"
+              class="input input-bordered input-sm w-28" @change="onPriceChange('min_price', minPrice)" />
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="text-base-content/70">Max price</span>
+            <input v-model="maxPrice" type="number" min="0" inputmode="numeric" placeholder="Any"
+              class="input input-bordered input-sm w-28" @change="onPriceChange('max_price', maxPrice)" />
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="text-base-content/70">Sort</span>
+            <select class="select select-bordered select-sm min-w-44" :value="sortFilter" @change="onSortChange">
+              <option v-for="option in sortOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+            </select>
+          </label>
+        </div>
+      </template>
+      <template #cell:image="{ row }">
+        <AppImage :src="row.image_urls" :alt="row.title" img-class="h-12 w-12 rounded-lg object-cover" />
+      </template>
+      <template #cell:retail_price="{ row }">₹{{ row.retail_price }}</template>
+      <template #cell:discount="{ row }">{{ row.discount }}%</template>
+      <template #actions="{ row }">
+        <div class="flex justify-end gap-2">
+          <router-link class="btn btn-ghost btn-xs" :to="`/admin/products/${row.id}/edit`">Edit</router-link>
+          <button class="btn btn-ghost btn-xs text-error" :disabled="productStore.mutating"
+            @click="askDelete(row)">Delete</button>
+        </div>
+      </template>
+    </DataTable>
 
-    <ErrorState v-else-if="productStore.error" :message="productStore.error"
-      :on-retry="() => productStore.fetchProducts()" />
-
-    <EmptyState v-else-if="!productStore.products.length" title="No products yet"
-      description="Create a product or seed demo data to get started." />
-
-    <div v-else class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Brand</th>
-            <th>Price</th>
-            <th>Discount</th>
-            <th class="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="product in productStore.products" :key="product.id">
-            <td class="font-semibold text-white">{{ product.product_name }}</td>
-            <td>{{ product.category }}</td>
-            <td>{{ product.brand }}</td>
-            <td>₹{{ product.retail_price }}</td>
-            <td>{{ product.discount }}%</td>
-            <td class="text-right">
-              <div class="flex justify-end gap-2">
-                <router-link class="btn btn-ghost btn-xs" :to="`/admin/products/${product.id}/edit`">Edit</router-link>
-                <button class="btn btn-ghost btn-xs text-error" :disabled="productStore.mutating"
-                  @click="onDelete(product.id, product.product_name)">Delete</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="productStore.products.length" class="flex flex-wrap items-center justify-between gap-3">
-      <button class="btn btn-outline btn-sm" :disabled="!productStore.pagination.has_previous"
-        @click="productStore.previous()">Previous</button>
-      <p class="text-sm text-base-content/70">Page {{ productStore.pagination.page }} of {{
-        productStore.pagination.total_pages }}</p>
-      <button class="btn btn-outline btn-sm" :disabled="!productStore.pagination.has_next"
-        @click="productStore.next()">Next</button>
-    </div>
+    <ConfirmDialog :open="confirmOpen" title="Delete product"
+      :message="`Delete &quot;${pendingDelete?.title ?? ''}&quot;? This cannot be undone.`" tone="danger"
+      :loading="deleting" @confirm="confirmDelete" @cancel="cancelDelete"
+      @update:open="(value) => value || cancelDelete()" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useProductStore } from '@/stores/product'
 import { useEcommerceStore } from '@/stores/ecommerce'
+import { useBrandStore } from '@/stores/brand'
 import PageHeader from '@/components/PageHeader.vue'
-import EmptyState from '@/components/EmptyState.vue'
-import ErrorState from '@/components/ErrorState.vue'
-import SkeletonTable from '@/components/SkeletonTable.vue'
+import AppImage from '@/components/AppImage.vue'
+import DataTable from '@/components/admin/DataTable.vue'
+import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
+import { getProducts } from '@/api/ProductsApi'
+import { useListController } from '@/composables/useListController'
+import { useConfirmAction } from '@/composables/useConfirmAction'
+import type { ListQuery } from '@/composables/listController.types'
+import type { DataTableColumn } from '@/components/admin/dataTable.types'
+import type { Product, ProductFilterParams } from '@/interfaces/product'
 
 const productStore = useProductStore()
 const ecommerceStore = useEcommerceStore()
+const brandStore = useBrandStore()
 
-async function onDelete(id: number, name: string) {
-  if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return
-  try {
-    await productStore.deleteProduct(id)
-    ecommerceStore.showToast(`Deleted ${name}.`, 'success')
-  } catch {
-    ecommerceStore.showToast(productStore.error ?? 'Failed to delete product.', 'error')
-  }
+const columns: DataTableColumn<Product>[] = [
+  { key: 'image', header: '', width: '4rem' },
+  { key: 'title', header: 'Name', cellClass: 'font-semibold text-base-content' },
+  { key: 'category', header: 'Category' },
+  { key: 'brand', header: 'Brand' },
+  { key: 'retail_price', header: 'Price' },
+  { key: 'discount', header: 'Discount' },
+]
+
+const sortOptions: { value: string; label: string }[] = [
+  { value: '', label: 'Default' },
+  { value: 'retail_price', label: 'Price: Low to High' },
+  { value: '-retail_price', label: 'Price: High to Low' },
+  { value: '-rating', label: 'Rating: High to Low' },
+  { value: '-id', label: 'Newest first' },
+]
+
+const brandFilter = ref<string>('')
+const minPrice = ref<string>('')
+const maxPrice = ref<string>('')
+const sortFilter = ref<string>('')
+
+function toPriceParam(value: string): number | undefined {
+  const trimmed = value.trim()
+  if (trimmed === '') return undefined
+  const parsed = Number(trimmed)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined
 }
+
+const controller = useListController<Product>({
+  initialPageSize: 10,
+  fetcher: async (query: ListQuery, signal?: AbortSignal) => {
+    const filters = query.filters
+    const params: ProductFilterParams = {
+      brand_id: (filters.brand_id as number | undefined) || undefined,
+      min_price: (filters.min_price as number | undefined) || undefined,
+      max_price: (filters.max_price as number | undefined) || undefined,
+      sort: (filters.sort as string | undefined) || undefined,
+    }
+    const response = await getProducts(query.page, query.pageSize, params, signal)
+    return { items: response.products, pagination: response.pagination }
+  },
+})
+
+function onBrandChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  brandFilter.value = value
+  controller.setFilter('brand_id', value === '' ? undefined : Number(value))
+}
+
+function onPriceChange(key: 'min_price' | 'max_price', value: string) {
+  controller.setFilter(key, toPriceParam(value))
+}
+
+function onSortChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  sortFilter.value = value
+  controller.setFilter('sort', value === '' ? undefined : value)
+}
+
+const {
+  pendingDelete,
+  confirmOpen,
+  deleting,
+  ask: askDelete,
+  cancel: cancelDelete,
+  confirm: confirmDelete,
+} = useConfirmAction<Product>({
+  perform: async (product) => {
+    await productStore.deleteProduct(product.id)
+  },
+  label: (product) => product.title,
+  onSuccess: async () => {
+    await controller.refresh()
+    // Server-mode delete can leave us on a now-empty last page; clamp back.
+    const totalPages = controller.pagination.value.total_pages
+    if (controller.page.value > totalPages && totalPages > 0) {
+      controller.setPage(totalPages)
+    }
+  },
+  errorMessage: () => productStore.error ?? 'Failed to delete product.',
+})
 
 async function onSeed() {
   try {
     await productStore.seedProducts()
     ecommerceStore.showToast('Demo products seeded.', 'success')
+    await controller.refresh()
   } catch {
     ecommerceStore.showToast(productStore.error ?? 'Failed to seed products.', 'error')
   }
 }
 
 onMounted(() => {
-  productStore.fetchProducts(1)
+  if (!brandStore.brands.length) void brandStore.fetchBrands()
 })
 </script>

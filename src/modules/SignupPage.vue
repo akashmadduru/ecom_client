@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto flex max-w-5xl flex-col gap-6 lg:flex-row">
-      <div class="card w-full border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+      <div class="card w-full border border-base-300 bg-base-100 shadow-sm">
         <div class="card-body">
           <h1 class="text-3xl font-semibold">Create your account</h1>
           <p class="text-sm text-base-content/70">Join the store to save wishlist items, track orders, and checkout
@@ -45,7 +45,7 @@
           </form>
         </div>
       </div>
-      <div class="card w-full border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+      <div class="card w-full border border-base-300 bg-base-100 shadow-sm">
         <div class="card-body">
           <h2 class="text-2xl font-semibold">Why sign up?</h2>
           <ul class="mt-4 space-y-3 text-sm">

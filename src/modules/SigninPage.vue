@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto flex max-w-5xl flex-col gap-6 lg:flex-row">
-      <div class="card w-full shadow-2xl">
+      <div class="card w-full shadow-sm">
         <div class="card-body">
           <p class="text-sm uppercase tracking-[0.3em] text-primary">Welcome back</p>
           <h1 class="text-3xl font-semibold">Log in to your account</h1>
@@ -16,9 +16,9 @@
               Continue with Google (redirect)
             </a>
             <div class="flex items-center gap-3 text-sm text-base-content/70">
-              <div class="h-px flex-1 bg-white/10" />
+              <div class="h-px flex-1 bg-base-300" />
               <span>or continue with email</span>
-              <div class="h-px flex-1 bg-white/10" />
+              <div class="h-px flex-1 bg-base-300" />
             </div>
           </div>
 
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <div class="card w-full shadow-2xl">
+      <div class="card w-full shadow-sm">
         <div class="card-body">
           <h2 class="text-xl font-semibold">Quick access</h2>
           <ul class="mt-4 space-y-3 text-sm text-base-content/70">

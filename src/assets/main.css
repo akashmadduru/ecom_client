@@ -1,24 +1,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 
 @import 'tailwindcss';
-@plugin "daisyui";
+/* Disable daisyUI's built-in themes so the OS `prefers-color-scheme: dark`
+ * cannot swap in the bundled `dark` theme — the app is always light. */
+@plugin "daisyui" {
+  themes: false;
+}
+
+/*
+ * Ecommerce light theme — flat & minimal, orange+pink duotone brand accent.
+ * daisyUI v5 CSS-based theme (see https://daisyui.com/docs/themes/).
+ */
+@plugin "daisyui/theme" {
+  name: 'northstar';
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Surfaces: warm near-white page, white cards, subtle section + border tones */
+  --color-base-100: #ffffff;
+  --color-base-200: #f6f3f0;
+  --color-base-300: #e7e1db;
+  --color-base-content: #2a2320; /* warm dark gray, not pure black */
+
+  /* Brand accent — orange duotone, deepened for legibility on light */
+  --color-primary: #f2701f;
+  --color-primary-content: #fff6ef;
+
+  /* Brand accent — pink, deepened from #f472b6 for white-text legibility */
+  --color-secondary: #e14a8f;
+  --color-secondary-content: #fff2f8;
+
+  --color-accent: #ff9f43;
+  --color-accent-content: #3a2410;
+
+  --color-neutral: #2a2320;
+  --color-neutral-content: #f7f3ee;
+
+  --color-info: #2b7fb8;
+  --color-info-content: #f2fbff;
+  --color-success: #2f9e6d;
+  --color-success-content: #f2fff9;
+  --color-warning: #d08700;
+  --color-warning-content: #fffaf0;
+  --color-error: #dc4b5f;
+  --color-error-content: #fff5f6;
+
+  --radius-selector: 1rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.1rem;
+  --border: 1px;
+}
 
 @theme {
   --font-sans: 'Quicksand', 'Helvetica Neue', sans-serif;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(255, 173, 84, 0.25), transparent 25%),
-    radial-gradient(circle at bottom right, rgba(244, 114, 182, 0.18), transparent 25%),
-    linear-gradient(135deg, #08070d 0%, #17111f 45%, #221824 100%);
-  color: #f9e8d1;
+    radial-gradient(circle at top left, rgba(255, 159, 67, 0.1), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(244, 114, 182, 0.08), transparent 32%),
+    linear-gradient(135deg, #fdfbf9 0%, #faf7f4 50%, #fbf6f8 100%);
+  color: var(--color-base-content);
 }
 
 #app {
@@ -36,11 +85,9 @@ body {
 
 .card,
 .navbar {
-  background: rgba(18, 15, 24, 0.76);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+  background: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+  box-shadow: 0 1px 2px rgba(24, 20, 17, 0.04);
 }
 
 .card {
@@ -52,8 +99,8 @@ body {
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.34);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(24, 20, 17, 0.08);
 }
 
 .card img {
@@ -63,8 +110,7 @@ body {
 }
 
 .card:hover img {
-  transform: scale(1.04);
-  filter: brightness(1.08);
+  transform: scale(1.03);
 }
 
 .btn,
@@ -79,41 +125,53 @@ body {
 }
 
 .btn {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.24);
+  transform: translateY(-1px);
 }
 
 .btn-primary {
   background: linear-gradient(135deg, #ff9f43 0%, #ff7a59 100%);
   border: none;
-  color: #fff4e8;
+  color: #fff6ef;
+  box-shadow: 0 2px 6px rgba(242, 112, 31, 0.25);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(242, 112, 31, 0.3);
 }
 
 .btn-outline,
 .btn-ghost {
-  color: #f9e8d1;
-  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--color-base-content);
+  border-color: var(--color-base-300);
 }
 
 .input,
 .select,
 .textarea {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #fff8ef;
+  background: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+  color: var(--color-base-content);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
 }
 
 .input::placeholder,
+.textarea::placeholder,
 .select option {
-  color: #d8c4a4;
+  color: color-mix(in srgb, var(--color-base-content) 50%, transparent);
 }
 
 .card_bg {
-  background-image: linear-gradient(135deg, rgba(255, 161, 90, 0.24), rgba(255, 120, 87, 0.2));
+  background-image: linear-gradient(135deg, rgba(255, 161, 90, 0.12), rgba(255, 120, 87, 0.1));
 }
 
 .toast-enter-from,

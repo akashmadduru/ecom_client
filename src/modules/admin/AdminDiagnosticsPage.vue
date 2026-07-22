@@ -10,11 +10,11 @@
     <EmptyState v-else-if="!entries.length" title="No diagnostics data"
       description="The diagnostics endpoint returned no data." />
 
-    <div v-else class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+    <div v-else class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
       <table class="table">
         <tbody>
           <tr v-for="[key, value] in entries" :key="key">
-            <td class="w-1/3 font-semibold text-white">{{ key }}</td>
+            <td class="w-1/3 font-semibold text-base-content">{{ key }}</td>
             <td class="font-mono text-sm">{{ formatValue(value) }}</td>
           </tr>
         </tbody>

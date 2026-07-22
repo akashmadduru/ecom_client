@@ -25,6 +25,7 @@ export interface CreateInventoryPayload {
 }
 
 export interface UpdateInventoryPayload {
+  sku?: string
   reorder_threshold?: number
   safety_stock?: number
   warehouse_location?: string
@@ -51,7 +52,9 @@ export interface RestockPayload {
 
 export interface BulkUpdateItem {
   product_id: number
-  reorder_threshold: number
+  reorder_threshold?: number
+  safety_stock?: number
+  warehouse_location?: string
 }
 
 export interface BulkUpdatePayload {

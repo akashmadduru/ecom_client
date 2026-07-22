@@ -13,23 +13,31 @@
       :on-retry="load" />
 
     <template v-else-if="record">
-      <div class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+      <div class="card border border-base-300 bg-base-100 shadow-sm">
         <div class="card-body grid gap-4 md:grid-cols-4">
-          <div><p class="text-xs uppercase text-base-content/60">SKU</p><p class="font-semibold text-white">{{
+          <div><p class="text-xs uppercase text-base-content/60">SKU</p><p class="font-semibold text-base-content">{{
             record.sku }}</p></div>
-          <div><p class="text-xs uppercase text-base-content/60">Warehouse</p><p class="font-semibold text-white">{{
+          <div><p class="text-xs uppercase text-base-content/60">Warehouse</p><p class="font-semibold text-base-content">{{
             record.warehouse_location }}</p></div>
           <div><p class="text-xs uppercase text-base-content/60">Available</p><p
-              class="font-semibold text-white">{{ record.available_quantity }}</p></div>
+              class="font-semibold text-base-content">{{ record.available_quantity }}</p></div>
           <div><p class="text-xs uppercase text-base-content/60">Status</p><span class="badge"
               :class="statusClass(record.status)">{{ record.status ?? 'UNKNOWN' }}</span></div>
         </div>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
-        <section class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+        <section class="card border border-base-300 bg-base-100 shadow-sm">
           <div class="card-body space-y-3">
-            <h2 class="text-lg font-semibold text-white">Update thresholds</h2>
+            <h2 class="text-lg font-semibold text-base-content">Update record</h2>
+            <label class="form-control flex flex-col gap-1">
+              <span class="label-text">SKU</span>
+              <input v-model="updateForm.sku" class="input input-bordered input-sm" />
+            </label>
+            <label class="form-control flex flex-col gap-1">
+              <span class="label-text">Warehouse location</span>
+              <input v-model="updateForm.warehouse_location" class="input input-bordered input-sm" />
+            </label>
             <label class="form-control flex flex-col gap-1">
               <span class="label-text">Reorder threshold</span>
               <input v-model.number="updateForm.reorder_threshold" type="number" min="0"
@@ -46,9 +54,9 @@
           </div>
         </section>
 
-        <section class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+        <section class="card border border-base-300 bg-base-100 shadow-sm">
           <div class="card-body space-y-3">
-            <h2 class="text-lg font-semibold text-white">Restock</h2>
+            <h2 class="text-lg font-semibold text-base-content">Restock</h2>
             <label class="form-control flex flex-col gap-1">
               <span class="label-text">Quantity to add</span>
               <input v-model.number="restockForm.quantity" type="number" min="1"
@@ -60,9 +68,9 @@
           </div>
         </section>
 
-        <section class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+        <section class="card border border-base-300 bg-base-100 shadow-sm">
           <div class="card-body space-y-3">
-            <h2 class="text-lg font-semibold text-white">Adjust stock</h2>
+            <h2 class="text-lg font-semibold text-base-content">Adjust stock</h2>
             <label class="form-control flex flex-col gap-1">
               <span class="label-text">Delta (use negative to subtract)</span>
               <input v-model.number="adjustForm.delta" type="number" class="input input-bordered input-sm" />
@@ -77,9 +85,9 @@
           </div>
         </section>
 
-        <section class="card border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+        <section class="card border border-base-300 bg-base-100 shadow-sm">
           <div class="card-body space-y-3">
-            <h2 class="text-lg font-semibold text-white">Reserve / release</h2>
+            <h2 class="text-lg font-semibold text-base-content">Reserve / release</h2>
             <label class="form-control flex flex-col gap-1">
               <span class="label-text">Order ID</span>
               <input v-model="reserveForm.order_id" class="input input-bordered input-sm" placeholder="order-123" />
@@ -121,7 +129,7 @@ const ecommerceStore = useEcommerceStore()
 const productId = computed(() => Number(route.params.productId))
 const record = computed(() => inventoryStore.selected)
 
-const updateForm = reactive({ reorder_threshold: 0, safety_stock: 0 })
+const updateForm = reactive({ sku: '', warehouse_location: '', reorder_threshold: 0, safety_stock: 0 })
 const restockForm = reactive({ quantity: 1 })
 const adjustForm = reactive({ delta: 0, reason: '' })
 const reserveForm = reactive({ order_id: '', quantity: 1 })
@@ -135,6 +143,8 @@ function statusClass(status?: InventoryStatus) {
 async function load() {
   try {
     const data = await inventoryStore.fetchByProduct(productId.value)
+    updateForm.sku = data.sku
+    updateForm.warehouse_location = data.warehouse_location
     updateForm.reorder_threshold = data.reorder_threshold
     updateForm.safety_stock = data.safety_stock
   } catch {
@@ -146,11 +156,13 @@ async function onUpdate() {
   if (!record.value) return
   try {
     await inventoryStore.updateInventory(productId.value, {
+      sku: updateForm.sku,
+      warehouse_location: updateForm.warehouse_location,
       reorder_threshold: updateForm.reorder_threshold,
       safety_stock: updateForm.safety_stock,
       version: record.value.version,
     })
-    ecommerceStore.showToast('Inventory thresholds updated.', 'success')
+    ecommerceStore.showToast('Inventory record updated.', 'success')
   } catch {
     ecommerceStore.showToast(inventoryStore.error ?? 'Failed to update inventory.', 'error')
   }

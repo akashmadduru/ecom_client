@@ -20,7 +20,7 @@
       :title="activeTab === 'low' ? 'No low stock products' : 'No out-of-stock products'"
       description="Everything looks healthy right now." />
 
-    <div v-else class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
+    <div v-else class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
       <table class="table">
         <thead>
           <tr>
@@ -34,7 +34,7 @@
         </thead>
         <tbody>
           <tr v-for="item in activeList" :key="item.product_id">
-            <td class="font-semibold text-white">{{ item.product_id }}</td>
+            <td class="font-semibold text-base-content">{{ item.product_id }}</td>
             <td>{{ item.sku }}</td>
             <td>{{ item.warehouse_location }}</td>
             <td>{{ item.available_quantity }}</td>

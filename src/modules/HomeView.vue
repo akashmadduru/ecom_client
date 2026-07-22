@@ -1,10 +1,10 @@
 <template>
   <main class="min-h-screen px-4 py-10 text-base-content">
     <section class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-      <div class="card shadow-2xl">
+      <div class="card shadow-sm">
         <div class="card-body space-y-4">
           <p class="text-sm uppercase tracking-[0.3em] text-primary">New season drop</p>
-          <h1 class="text-4xl font-semibold text-white">Discover thoughtfully designed essentials for everyday life.
+          <h1 class="text-4xl font-semibold">Discover thoughtfully designed essentials for everyday life.
           </h1>
           <p class="text-base text-base-content/70">Browse curated electronics, travel gear, and home pieces all in one
             modern storefront.</p>
@@ -15,12 +15,12 @@
         </div>
       </div>
 
-      <div class="card shadow-2xl">
+      <div class="card shadow-sm">
         <div class="card-body">
-          <h2 class="text-xl font-semibold text-white">Why shoppers love Northstar</h2>
+          <h2 class="text-xl font-semibold">Why shoppers love Ecommerce</h2>
           <ul class="mt-4 space-y-3 text-sm text-base-content/70">
             <li>• Fast filters and side navigation for quick discovery</li>
-            <li>• Premium glass surfaces and richer depth</li>
+            <li>• Clean, flat surfaces with clear visual hierarchy</li>
             <li>• Mock data pages for cart, wishlist, orders, and addresses</li>
           </ul>
         </div>

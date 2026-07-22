@@ -3,7 +3,7 @@
     <div
       v-for="n in rows"
       :key="n"
-      class="h-12 animate-pulse rounded-xl border border-white/10 bg-white/5"
+      class="h-12 animate-pulse rounded-xl border border-base-300 bg-base-200"
     />
   </div>
 </template>

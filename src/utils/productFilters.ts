@@ -14,7 +14,7 @@ export function filterAndSortProducts(products: Product[], filters: ProductFilte
   const filtered = products.filter((product) => {
     const matchesSearch =
       !search ||
-      product.product_name.toLowerCase().includes(search) ||
+      product.title.toLowerCase().includes(search) ||
       product.description.toLowerCase().includes(search)
     const matchesCategory = !filters.category || product.category === filters.category
     const matchesBrand = !filters.brand || product.brand === filters.brand
