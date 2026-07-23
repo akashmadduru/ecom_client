@@ -4,32 +4,32 @@
       :title="isEdit ? 'Edit brand' : 'Create a new brand'"
       description="Fields marked required must be filled before saving." />
 
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card">
       <div class="card-body">
         <SkeletonTable v-if="loadingExisting" :rows="6" />
 
         <form v-else class="space-y-4" @submit.prevent="onSubmit" novalidate>
           <div v-if="formError.formError.value"
-            class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+            class="alert-soft-error">
             {{ formError.formError.value }}
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Name</span>
               <input v-model="form.name" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('name') }" />
-              <span v-if="formError.fieldError('name')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('name')" class="field-error">{{
                 formError.fieldError('name') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Slug</span>
               <input v-model="form.slug" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('slug') }" />
             </label>
           </div>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Manufacturer</span>
             <select v-model="manufacturerIdValue" class="select select-bordered">
               <option :value="null">None</option>
@@ -40,12 +40,12 @@
             </select>
           </label>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Logo URL</span>
             <input v-model="form.logo_url" class="input input-bordered" />
           </label>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Description</span>
             <textarea v-model="form.description" class="textarea textarea-bordered" rows="3" />
           </label>

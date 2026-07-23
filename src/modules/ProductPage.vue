@@ -2,7 +2,7 @@
   <div v-if="productStore.selectedProduct" class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_1fr]">
       <div class="space-y-4">
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card">
           <figure class="p-4">
             <AppImage :src="images[activeImage]" alt="" :raw="false" img-class="h-80 w-full rounded-xl object-cover" />
           </figure>
@@ -15,12 +15,12 @@
         </div>
       </div>
 
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card">
         <div class="card-body space-y-4">
           <div class="space-y-2">
-            <p class="text-sm uppercase tracking-[0.3em] text-primary">{{ productStore.selectedProduct.category }}</p>
+            <p class="section-kicker section-kicker-sm">{{ productStore.selectedProduct.category }}</p>
             <h1 class="text-3xl font-semibold">{{ productStore.selectedProduct.title.substring(0, 30) }}</h1>
-            <p class="text-sm text-base-content/70">{{ productStore.selectedProduct.description }}</p>
+            <p class="text-sm text-muted">{{ productStore.selectedProduct.description }}</p>
           </div>
 
           <div class="flex items-center gap-3">
@@ -28,7 +28,7 @@
             <span class="badge badge-success">{{ productStore.selectedProduct.discount }}% off</span>
           </div>
 
-          <div class="flex items-center gap-2 text-sm text-base-content/70">
+          <div class="flex items-center gap-2 text-sm text-muted">
             <span class="badge badge-outline">⭐ {{ productStore.selectedProduct.rating }}</span>
             <span>Brand: {{ productStore.selectedProduct.brand }}</span>
             <span v-if="stockBadge" class="badge" :class="stockBadge.class">{{ stockBadge.label }}</span>
@@ -36,7 +36,7 @@
 
           <div class="space-y-2 rounded-lg bg-base-200 p-4">
             <p class="font-semibold">Why you’ll love it</p>
-            <ul class="list-disc space-y-1 pl-5 text-sm text-base-content/70">
+            <ul class="list-disc space-y-1 pl-5 text-sm text-muted">
               <li>Ready for everyday use and travel</li>
               <li>Comfortable design with premium finish</li>
               <li>Backed by a simple mock checkout flow</li>

@@ -22,7 +22,7 @@ const crumbs = computed<Crumb[]>(() =>
 </script>
 
 <template>
-  <nav v-if="crumbs.length" aria-label="Breadcrumb" class="text-sm text-base-content/70">
+  <nav v-if="crumbs.length" aria-label="Breadcrumb" class="text-sm text-muted">
     <ol class="flex flex-wrap items-center gap-2">
       <li v-for="(crumb, index) in crumbs" :key="crumb.to" class="flex items-center gap-2">
         <span v-if="index > 0" class="text-base-content/40">/</span>

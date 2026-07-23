@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto flex max-w-5xl flex-col gap-6 lg:flex-row">
-      <div class="card w-full shadow-sm">
+      <div class="card w-full">
         <div class="card-body">
-          <p class="text-sm uppercase tracking-[0.3em] text-primary">Welcome back</p>
+          <p class="section-kicker section-kicker-sm">Welcome back</p>
           <h1 class="text-3xl font-semibold">Log in to your account</h1>
 
           <div class="mt-6 space-y-4">
@@ -15,7 +15,7 @@
             <a class="btn btn-outline w-full" :href="authStore.googleAuthorizeRedirectUrl()">
               Continue with Google (redirect)
             </a>
-            <div class="flex items-center gap-3 text-sm text-base-content/70">
+            <div class="flex items-center gap-3 text-sm text-muted">
               <div class="h-px flex-1 bg-base-300" />
               <span>or continue with email</span>
               <div class="h-px flex-1 bg-base-300" />
@@ -24,7 +24,7 @@
 
           <form class="mt-6 flex flex-col space-y-4" @submit.prevent="onSubmit" novalidate>
             <div v-if="formError.formError.value"
-              class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+              class="alert-soft-error">
               {{ formError.formError.value }}
             </div>
 
@@ -32,33 +32,33 @@
               <input v-model="form.username" class="input input-bordered"
                 :class="{ 'input-error': formError.fieldError('username') }" type="text"
                 placeholder="Enter username" required />
-              <span v-if="formError.fieldError('username')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('username')" class="field-error">{{
                 formError.fieldError('username') }}</span>
             </label>
             <label class="form-control flex flex-col gap-2">
               <input v-model="form.password" class="input input-bordered"
                 :class="{ 'input-error': formError.fieldError('password') }" type="password"
                 placeholder="Enter password" required minlength="1" />
-              <span v-if="formError.fieldError('password')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('password')" class="field-error">{{
                 formError.fieldError('password') }}</span>
             </label>
             <button :class="['btn btn-primary w-full', { 'opacity-70': processing }]" type="submit"
               :disabled="processing">{{ processing ? 'Signing in...' : 'Log in' }}</button>
           </form>
-          <p class="mt-4 text-sm text-base-content/70">
+          <p class="mt-4 text-sm text-muted">
             New here? {{ ' ' }}
             <router-link class="link link-primary" to="/signup">Create an account</router-link>
           </p>
         </div>
       </div>
 
-      <div class="card w-full shadow-sm">
-        <div class="card-body">
+      <div class="card w-full">
+        <div class="card-body feature-list-card">
           <h2 class="text-xl font-semibold">Quick access</h2>
-          <ul class="mt-4 space-y-3 text-sm text-base-content/70">
-            <li>• Track orders and returns</li>
-            <li>• Save favorites in wishlist</li>
-            <li>• Add and manage delivery addresses</li>
+          <ul class="mt-4 space-y-3 text-sm text-muted">
+            <li>Track orders and returns</li>
+            <li>Save favorites in wishlist</li>
+            <li>Add and manage delivery addresses</li>
           </ul>
         </div>
       </div>

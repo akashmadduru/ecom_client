@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar mx-auto w-[95%] max-w-7xl px-4 shadow-sm">
+  <div class="navbar mx-auto w-[95%] max-w-7xl px-4">
     <div class="flex-1">
       <router-link to="/" class="btn btn-ghost text-xl font-semibold">Ecommerce</router-link>
     </div>
@@ -22,12 +22,12 @@
       <details v-if="authStore.isAuthenticated" class="dropdown dropdown-end">
         <summary class="btn btn-ghost btn-circle btn-sm p-0">
           <div
-            class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-rose-400 text-sm font-semibold text-white">
+            class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-neutral text-sm font-semibold text-primary-content">
             {{ initials }}
           </div>
         </summary>
         <ul
-          class="menu dropdown-content z-[1] mt-3 w-48 rounded-box border border-base-300 bg-base-100 p-2 shadow-md">
+          class="menu dropdown-content z-[1] mt-3 w-48 rounded-box border border-base-300 bg-base-100 p-2 shadow-soft">
           <li><router-link to="/profile">Profile</router-link></li>
           <li><router-link to="/orders">Orders</router-link></li>
           <li><router-link to="/address">Addresses</router-link></li>

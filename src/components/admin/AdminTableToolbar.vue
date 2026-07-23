@@ -20,7 +20,7 @@ const emit = defineEmits<{
         <input :value="modelValue" type="search" class="input input-bordered w-full"
           :placeholder="searchPlaceholder" @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
         <span v-if="loading"
-          class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60" />
+          class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2 text-subtle" />
       </label>
       <slot name="filters" />
     </div>

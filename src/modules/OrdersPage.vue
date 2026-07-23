@@ -8,8 +8,7 @@
         </template>
       </PageHeader>
 
-      <div v-if="ecommerceStore.orders.length"
-        class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+      <div v-if="ecommerceStore.orders.length" class="data-panel">
         <table class="table">
           <thead>
             <tr>
@@ -38,11 +37,8 @@
         </table>
       </div>
 
-      <div v-else
-        class="rounded-[1.6rem] border border-base-300 bg-base-100 p-10 text-center shadow-sm">
-        <h2 class="text-2xl font-semibold text-base-content">No orders yet</h2>
-        <p class="mt-2 text-base-content/70">Your completed purchases will appear here once you place an order.</p>
-      </div>
+      <EmptyState v-else title="No orders yet"
+        description="Your completed purchases will appear here once you place an order." />
     </div>
   </div>
 </template>
@@ -50,6 +46,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { useEcommerceStore } from '@/stores/ecommerce'
 
 const ecommerceStore = useEcommerceStore()

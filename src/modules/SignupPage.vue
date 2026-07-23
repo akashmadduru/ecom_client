@@ -1,42 +1,42 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto flex max-w-5xl flex-col gap-6 lg:flex-row">
-      <div class="card w-full border border-base-300 bg-base-100 shadow-sm">
+      <div class="card w-full">
         <div class="card-body">
           <h1 class="text-3xl font-semibold">Create your account</h1>
-          <p class="text-sm text-base-content/70">Join the store to save wishlist items, track orders, and checkout
+          <p class="text-sm text-muted">Join the store to save wishlist items, track orders, and checkout
             faster.</p>
 
           <form class="mt-6 space-y-4" @submit.prevent="onSubmit" novalidate>
             <div v-if="formError.formError.value"
-              class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+              class="alert-soft-error">
               {{ formError.formError.value }}
             </div>
 
-            <div class="grid gap-4 md:grid-cols-2">
-              <label class="form-control flex flex-col gap-1">
+            <div class="form-row-2">
+              <label class="form-field">
                 <input v-model="form.username" class="input input-bordered"
                   :class="{ 'input-error': formError.fieldError('username') || usernameError }" type="text"
                   placeholder="Username" required minlength="3" @blur="touched.username = true" />
-                <span v-if="usernameError" class="text-xs text-error">{{ usernameError }}</span>
-                <span v-else-if="formError.fieldError('username')" class="text-xs text-error">{{
+                <span v-if="usernameError" class="field-error">{{ usernameError }}</span>
+                <span v-else-if="formError.fieldError('username')" class="field-error">{{
                   formError.fieldError('username') }}</span>
               </label>
-              <label class="form-control flex flex-col gap-1">
+              <label class="form-field">
                 <input v-model="form.email" class="input input-bordered"
                   :class="{ 'input-error': formError.fieldError('email') || emailError }" type="email"
                   placeholder="you@example.com" required @blur="touched.email = true" />
-                <span v-if="emailError" class="text-xs text-error">{{ emailError }}</span>
-                <span v-else-if="formError.fieldError('email')" class="text-xs text-error">{{
+                <span v-if="emailError" class="field-error">{{ emailError }}</span>
+                <span v-else-if="formError.fieldError('email')" class="field-error">{{
                   formError.fieldError('email') }}</span>
               </label>
             </div>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <input v-model="form.password" class="input input-bordered"
                 :class="{ 'input-error': formError.fieldError('password') || passwordError }" type="password"
                 placeholder="Minimum 8 characters" required minlength="8" @blur="touched.password = true" />
-              <span v-if="passwordError" class="text-xs text-error">{{ passwordError }}</span>
-              <span v-else-if="formError.fieldError('password')" class="text-xs text-error">{{
+              <span v-if="passwordError" class="field-error">{{ passwordError }}</span>
+              <span v-else-if="formError.fieldError('password')" class="field-error">{{
                 formError.fieldError('password') }}</span>
             </label>
 
@@ -45,14 +45,14 @@
           </form>
         </div>
       </div>
-      <div class="card w-full border border-base-300 bg-base-100 shadow-sm">
-        <div class="card-body">
+      <div class="card w-full">
+        <div class="card-body feature-list-card">
           <h2 class="text-2xl font-semibold">Why sign up?</h2>
           <ul class="mt-4 space-y-3 text-sm">
-            <li>• Save products to your wishlist</li>
-            <li>• Track your orders in one place</li>
-            <li>• Add multiple delivery addresses</li>
-            <li>• Get early access to new launches</li>
+            <li>Save products to your wishlist</li>
+            <li>Track your orders in one place</li>
+            <li>Add multiple delivery addresses</li>
+            <li>Get early access to new launches</li>
           </ul>
         </div>
       </div>

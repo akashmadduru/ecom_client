@@ -20,7 +20,7 @@
       :title="activeTab === 'low' ? 'No low stock products' : 'No out-of-stock products'"
       description="Everything looks healthy right now." />
 
-    <div v-else class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+    <div v-else class="data-panel">
       <table class="table">
         <thead>
           <tr>

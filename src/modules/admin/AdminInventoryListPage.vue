@@ -12,7 +12,7 @@
       <template #toolbar>
         <div class="flex flex-wrap items-end gap-3">
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-base-content/70">Status</span>
+            <span class="text-muted">Status</span>
             <select class="select select-bordered select-sm min-w-40" :value="statusFilter" @change="onStatusChange">
               <option value="">All statuses</option>
               <option value="IN_STOCK">In stock</option>
@@ -21,7 +21,7 @@
             </select>
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-base-content/70">Warehouse</span>
+            <span class="text-muted">Warehouse</span>
             <input v-model="warehouseFilter" type="text" placeholder="e.g. DEFAULT"
               class="input input-bordered input-sm w-40" @change="onWarehouseChange" />
           </label>

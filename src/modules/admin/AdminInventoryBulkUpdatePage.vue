@@ -3,28 +3,28 @@
     <PageHeader eyebrow="Admin · Inventory" title="Bulk update reorder thresholds"
       description="Update reorder thresholds for multiple products in one request." />
 
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card">
       <div class="card-body space-y-4">
         <div v-if="formError.formError.value"
-          class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+          class="alert-soft-error">
           {{ formError.formError.value }}
         </div>
 
         <div v-for="(item, index) in items" :key="index" class="flex flex-wrap items-end gap-3">
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Product ID</span>
             <input v-model.number="item.product_id" type="number" min="1" class="input input-bordered input-sm" />
           </label>
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Reorder threshold</span>
             <input v-model.number="item.reorder_threshold" type="number" min="0"
               class="input input-bordered input-sm" />
           </label>
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Safety stock</span>
             <input v-model.number="item.safety_stock" type="number" min="0" class="input input-bordered input-sm" />
           </label>
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Warehouse location</span>
             <input v-model="item.warehouse_location" class="input input-bordered input-sm" />
           </label>

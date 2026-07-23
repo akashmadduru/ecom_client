@@ -3,59 +3,59 @@
     <PageHeader eyebrow="Admin · New inventory record" title="Create inventory record"
       description="Register stock tracking for a product." />
 
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card">
       <div class="card-body">
         <form class="space-y-4" @submit.prevent="onSubmit" novalidate>
           <div v-if="formError.formError.value"
-            class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+            class="alert-soft-error">
             {{ formError.formError.value }}
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Product ID</span>
               <input v-model.number="form.product_id" type="number" min="1" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('product_id') }" />
-              <span v-if="formError.fieldError('product_id')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('product_id')" class="field-error">{{
                 formError.fieldError('product_id') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">SKU</span>
               <input v-model="form.sku" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('sku') }" />
-              <span v-if="formError.fieldError('sku')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('sku')" class="field-error">{{
                 formError.fieldError('sku') }}</span>
             </label>
           </div>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Warehouse location</span>
             <input v-model="form.warehouse_location" class="input input-bordered" required
               :class="{ 'input-error': formError.fieldError('warehouse_location') }" />
-            <span v-if="formError.fieldError('warehouse_location')" class="text-xs text-error">{{
+            <span v-if="formError.fieldError('warehouse_location')" class="field-error">{{
               formError.fieldError('warehouse_location') }}</span>
           </label>
 
           <div class="grid gap-4 md:grid-cols-3">
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Available quantity</span>
               <input v-model.number="form.available_quantity" type="number" min="0" class="input input-bordered"
                 required :class="{ 'input-error': formError.fieldError('available_quantity') }" />
-              <span v-if="formError.fieldError('available_quantity')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('available_quantity')" class="field-error">{{
                 formError.fieldError('available_quantity') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Safety stock</span>
               <input v-model.number="form.safety_stock" type="number" min="0" class="input input-bordered"
                 required :class="{ 'input-error': formError.fieldError('safety_stock') }" />
-              <span v-if="formError.fieldError('safety_stock')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('safety_stock')" class="field-error">{{
                 formError.fieldError('safety_stock') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Reorder threshold</span>
               <input v-model.number="form.reorder_threshold" type="number" min="0" class="input input-bordered"
                 required :class="{ 'input-error': formError.fieldError('reorder_threshold') }" />
-              <span v-if="formError.fieldError('reorder_threshold')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('reorder_threshold')" class="field-error">{{
                 formError.fieldError('reorder_threshold') }}</span>
             </label>
           </div>

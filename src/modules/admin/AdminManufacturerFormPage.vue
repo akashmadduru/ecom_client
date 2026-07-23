@@ -4,37 +4,37 @@
       :title="isEdit ? 'Edit manufacturer' : 'Create a new manufacturer'"
       description="Fields marked required must be filled before saving." />
 
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card">
       <div class="card-body">
         <SkeletonTable v-if="loadingExisting" :rows="4" />
 
         <form v-else class="space-y-4" @submit.prevent="onSubmit" novalidate>
           <div v-if="formError.formError.value"
-            class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+            class="alert-soft-error">
             {{ formError.formError.value }}
           </div>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Name</span>
             <input v-model="form.name" class="input input-bordered" required
               :class="{ 'input-error': formError.fieldError('name') }" />
-            <span v-if="formError.fieldError('name')" class="text-xs text-error">{{
+            <span v-if="formError.fieldError('name')" class="field-error">{{
               formError.fieldError('name') }}</span>
           </label>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Country of origin (2-letter code)</span>
             <input v-model="form.country_of_origin" class="input input-bordered" maxlength="2" placeholder="IN" />
           </label>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Contact email</span>
               <input v-model="contactEmail" type="email" class="input input-bordered"
                 :class="{ 'input-error': contactEmailError }" />
-              <span v-if="contactEmailError" class="text-xs text-error">{{ contactEmailError }}</span>
+              <span v-if="contactEmailError" class="field-error">{{ contactEmailError }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Contact phone</span>
               <input v-model="contactPhone" class="input input-bordered" />
             </label>

@@ -6,15 +6,15 @@
 
       <div class="grid gap-6 lg:grid-cols-2">
         <div v-for="address in ecommerceStore.addresses" :key="address.id"
-          class="card border border-base-300 bg-base-100 shadow-sm">
+          class="card">
           <div class="card-body">
             <div class="flex items-center justify-between">
               <h2 class="card-title text-base-content">{{ address.label }}</h2>
               <span class="badge badge-outline">{{ address.type }}</span>
             </div>
-            <p class="text-sm text-base-content/70">{{ address.street }}</p>
-            <p class="text-sm text-base-content/70">{{ address.city }} · {{ address.state }} · {{ address.pincode }}</p>
-            <p class="text-sm text-base-content/70">Phone: {{ address.phone }}</p>
+            <p class="text-sm text-muted">{{ address.street }}</p>
+            <p class="text-sm text-muted">{{ address.city }} · {{ address.state }} · {{ address.pincode }}</p>
+            <p class="text-sm text-muted">Phone: {{ address.phone }}</p>
           </div>
         </div>
       </div>

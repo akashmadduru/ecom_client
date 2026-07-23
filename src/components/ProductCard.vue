@@ -1,6 +1,6 @@
 <template>
   <article
-    class="flex flex-col gap-4 justify-between cusror-pointer card group relative h-full overflow-hidden border border-base-300 bg-base-100 shadow-sm transition-all duration-300 ease-out hover:shadow-md">
+    class="flex flex-col gap-4 justify-between cusror-pointer card group relative h-full overflow-hidden transition-all duration-300 ease-out">
     <div
       class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
     </div>
@@ -13,19 +13,20 @@
       img-class="h-44 w-full rounded-[1.1rem] rounded-b-none object-cover transition-all duration-500 ease-out group-hover:brightness-200" />
     <div class="card-body relative z-10 space-y-3">
       <div class="flex items-center justify-between gap-2">
-        <span
-          class="rounded-full border border-orange-400/30 bg-orange-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-orange-600">{{
-            product.category }}</span>
-        <span class="text-xs text-base-content/70">⭐ {{ product.rating }}</span>
+        <span class="eyebrow-pill eyebrow-pill-sm">{{ product.category }}</span>
+        <span class="text-xs text-muted">⭐ {{ product.rating }}</span>
       </div>
       <div class="space-y-1">
         <h2 class="text-lg font-semibold">{{ product.title }}</h2>
-        <p class="text-sm text-base-content/70 line-clamp-2">{{ product.description }}</p>
+        <p class="text-sm text-muted line-clamp-2">{{ product.description }}</p>
       </div>
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xl font-semibold">₹{{ product.retail_price }}</p>
-          <p class="text-xs uppercase tracking-[0.24em] text-base-content/70">{{ product.brand }}</p>
+          <div class="flex items-baseline gap-2">
+            <p class="text-xl font-semibold">₹{{ sellingPrice.toFixed(2) }}</p>
+            <p v-if="mrp !== null" class="text-xs text-subtle line-through">₹{{ mrp.toFixed(2) }}</p>
+          </div>
+          <p class="text-xs uppercase tracking-[0.24em] text-muted">{{ product.brand }}</p>
         </div>
         <button
           :class="['btn btn-primary btn-sm transition-all duration-300 hover:scale-[1.02]', { 'opacity-75': isProcessing }]"
@@ -48,11 +49,14 @@ import { useRouter } from 'vue-router'
 import type { Product } from '@/interfaces/product'
 import { useEcommerceStore } from '@/stores/ecommerce'
 import AppImage from '@/components/AppImage.vue'
+import { getSellingPrice, getMrp } from '@/utils/pricing'
 
 const props = defineProps<{ product: Product }>()
 const router = useRouter()
 const ecommerceStore = useEcommerceStore()
 
+const sellingPrice = computed(() => getSellingPrice(props.product))
+const mrp = computed(() => getMrp(props.product))
 const isWishlisted = computed(() => ecommerceStore.wishlist.some((item) => item.id === props.product.id))
 const isProcessing = computed(() => ecommerceStore.isProcessing['p' + props.product.id] === true)
 

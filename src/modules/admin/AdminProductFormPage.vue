@@ -4,38 +4,38 @@
       :title="isEdit ? 'Edit product' : 'Create a new product'"
       description="Fields marked required must be filled before saving." />
 
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card">
       <div class="card-body">
         <SkeletonTable v-if="loadingExisting" :rows="6" />
 
         <form v-else class="space-y-4" @submit.prevent="onSubmit" novalidate>
           <div v-if="formError.formError.value"
-            class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+            class="alert-soft-error">
             {{ formError.formError.value }}
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Title</span>
               <input v-model="form.title" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('title') }" />
-              <span v-if="formError.fieldError('title')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('title')" class="field-error">{{
                 formError.fieldError('title') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Slug</span>
               <input v-model="form.slug" class="input input-bordered"
                 :class="{ 'input-error': formError.fieldError('slug') }" />
             </label>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Brand</span>
               <input v-model="form.brand" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('brand') }" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Brand (linked)</span>
               <select v-model="brandIdValue" class="select select-bordered">
                 <option :value="null">None</option>
@@ -46,19 +46,19 @@
             </label>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Category</span>
               <input v-model="form.category" class="input input-bordered" required />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Sub-category</span>
               <input v-model="form.sub_category" class="input input-bordered" required />
             </label>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Manufacturer</span>
               <select v-model="manufacturerIdValue" class="select select-bordered">
                 <option :value="null">None</option>
@@ -68,69 +68,69 @@
                 </option>
               </select>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Category ID (picker coming once Categories ship)</span>
               <input v-model.number="categoryIdValue" type="number" min="1" class="input input-bordered" />
             </label>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Retail price</span>
               <input v-model.number="form.retail_price" type="number" min="0" step="0.01"
                 class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('retail_price') }" />
             </label>
-            <label class="form-control flex flex-col gap-1">
-              <span class="label-text">Discount (%)</span>
-              <input v-model.number="form.discount" type="number" min="0" max="100" step="0.01"
-                class="input input-bordered" required />
+            <label class="form-field">
+              <span class="label-text">Discount (₹ off retail price)</span>
+              <input v-model.number="form.discount" type="number" min="0" step="0.01" class="input input-bordered"
+                required />
             </label>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Product URL</span>
               <input v-model="form.product_url" class="input input-bordered" />
             </label>
-            <label v-if="!isEdit" class="form-control flex flex-col gap-1">
+            <label v-if="!isEdit" class="form-field">
               <span class="label-text">Unique ID</span>
               <input v-model="form.uniq_id" class="input input-bordered" />
             </label>
           </div>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Image URLs</span>
             <textarea v-model="form.image_urls" class="textarea textarea-bordered" rows="2"
               placeholder='["https://example.com/1.jpg","https://example.com/2.jpg"]' />
-            <span class="text-xs text-base-content/60">JSON array of image URLs.</span>
+            <span class="text-xs text-subtle">JSON array of image URLs.</span>
           </label>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Description</span>
             <textarea v-model="form.description" class="textarea textarea-bordered" rows="4" required />
           </label>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">SEO title</span>
               <input v-model="form.seo_title" class="input input-bordered" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Canonical URL</span>
               <input v-model="form.canonical_url" class="input input-bordered" />
             </label>
           </div>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">SEO description</span>
             <textarea v-model="form.seo_description" class="textarea textarea-bordered" rows="2" />
           </label>
 
-          <label class="form-control flex flex-col gap-1">
+          <label class="form-field">
             <span class="label-text">Meta keywords</span>
             <input v-model="metaKeywordsInput" class="input input-bordered" placeholder="racing wheel, gaming accessories" />
-            <span class="text-xs text-base-content/60">Comma-separated values.</span>
+            <span class="text-xs text-subtle">Comma-separated values.</span>
           </label>
 
           <div class="flex gap-3">

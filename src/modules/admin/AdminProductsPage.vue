@@ -17,24 +17,24 @@
       <template #toolbar>
         <div class="flex flex-wrap items-end gap-3">
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-base-content/70">Brand</span>
+            <span class="text-muted">Brand</span>
             <select class="select select-bordered select-sm min-w-40" :value="brandFilter" @change="onBrandChange">
               <option value="">All brands</option>
               <option v-for="brand in brandStore.brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
             </select>
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-base-content/70">Min price</span>
+            <span class="text-muted">Min price</span>
             <input v-model="minPrice" type="number" min="0" inputmode="numeric" placeholder="0"
               class="input input-bordered input-sm w-28" @change="onPriceChange('min_price', minPrice)" />
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-base-content/70">Max price</span>
+            <span class="text-muted">Max price</span>
             <input v-model="maxPrice" type="number" min="0" inputmode="numeric" placeholder="Any"
               class="input input-bordered input-sm w-28" @change="onPriceChange('max_price', maxPrice)" />
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-base-content/70">Sort</span>
+            <span class="text-muted">Sort</span>
             <select class="select select-bordered select-sm min-w-44" :value="sortFilter" @change="onSortChange">
               <option v-for="option in sortOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>

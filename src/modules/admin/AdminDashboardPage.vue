@@ -4,13 +4,13 @@
       description="Manage the product catalog and inventory backed by the live microservices." />
 
     <section v-for="group in groups" :key="group.heading" class="space-y-3">
-      <h2 class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ group.heading }}</h2>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <h2 class="section-kicker">{{ group.heading }}</h2>
+      <div class="form-row-2 lg:grid-cols-3">
         <router-link v-for="link in group.links" :key="link.to" :to="link.to"
-          class="card border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40">
+          class="card transition hover:-translate-y-0.5 hover:border-primary/40">
           <div class="card-body">
             <h3 class="text-lg font-semibold text-base-content">{{ link.title }}</h3>
-            <p class="text-sm text-base-content/70">{{ link.description }}</p>
+            <p class="text-sm text-muted">{{ link.description }}</p>
           </div>
         </router-link>
       </div>

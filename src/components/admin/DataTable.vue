@@ -69,7 +69,7 @@ const showSkeleton = computed(
     </template>
 
     <template v-else-if="showTable">
-      <div class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+      <div class="data-panel">
         <table class="table" :class="{ 'table-sm': dense }">
           <thead>
             <tr>

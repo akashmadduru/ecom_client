@@ -6,13 +6,13 @@
 
       <div v-if="ecommerceStore.wishlist.length" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <div v-for="item in ecommerceStore.wishlist" :key="item.id"
-          class="card border border-base-300 bg-base-100 shadow-sm">
+          class="card">
           <figure>
             <AppImage :src="item.image_urls" alt="" img-class="h-48 w-full rounded-[1.1rem] object-cover" />
           </figure>
           <div class="card-body">
             <h2 class="card-title text-base-content">{{ item.title }}</h2>
-            <p class="text-sm text-base-content/70">{{ item.brand }} • {{ item.category }}</p>
+            <p class="text-sm text-muted">{{ item.brand }} • {{ item.category }}</p>
             <p class="text-lg font-semibold text-base-content">₹{{ item.retail_price }}</p>
             <div class="card-actions justify-between">
               <button class="btn btn-primary btn-sm" @click="addToCart(item)">Add to cart</button>
@@ -22,11 +22,8 @@
         </div>
       </div>
 
-      <div v-else
-        class="rounded-[1.6rem] border border-base-300 bg-base-100 p-10 text-center shadow-sm">
-        <h2 class="text-2xl font-semibold text-base-content">Nothing saved yet</h2>
-        <p class="mt-2 text-base-content/70">Tap the heart on any product to build your wishlist.</p>
-      </div>
+      <EmptyState v-else title="Nothing saved yet"
+        description="Tap the heart on any product to build your wishlist." />
     </div>
   </div>
 </template>
@@ -35,6 +32,7 @@
 import { onMounted } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
 import AppImage from '@/components/AppImage.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { useEcommerceStore } from '@/stores/ecommerce'
 
 const ecommerceStore = useEcommerceStore()

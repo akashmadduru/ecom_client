@@ -10,7 +10,7 @@
 
     <EmptyState v-else-if="!entries.length" title="No health data" description="The health report returned no data." />
 
-    <div v-else class="overflow-hidden rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+    <div v-else class="data-panel">
       <table class="table">
         <tbody>
           <tr v-for="[key, value] in entries" :key="key">

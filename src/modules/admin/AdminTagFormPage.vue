@@ -4,29 +4,29 @@
       :title="isEdit ? 'Edit tag' : 'Create a new tag'"
       description="Fields marked required must be filled before saving." />
 
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card">
       <div class="card-body">
         <SkeletonTable v-if="loadingExisting" :rows="3" />
 
         <form v-else class="space-y-4" @submit.prevent="onSubmit" novalidate>
           <div v-if="formError.formError.value"
-            class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error-content">
+            class="alert-soft-error">
             {{ formError.formError.value }}
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="form-control flex flex-col gap-1">
+          <div class="form-row-2">
+            <label class="form-field">
               <span class="label-text">Name</span>
               <input v-model="form.name" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('name') }" />
-              <span v-if="formError.fieldError('name')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('name')" class="field-error">{{
                 formError.fieldError('name') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Slug</span>
               <input v-model="form.slug" class="input input-bordered" required
                 :class="{ 'input-error': formError.fieldError('slug') }" />
-              <span v-if="formError.fieldError('slug')" class="text-xs text-error">{{
+              <span v-if="formError.fieldError('slug')" class="field-error">{{
                 formError.fieldError('slug') }}</span>
             </label>
           </div>

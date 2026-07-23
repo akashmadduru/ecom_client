@@ -13,37 +13,37 @@
       :on-retry="load" />
 
     <template v-else-if="record">
-      <div class="card border border-base-300 bg-base-100 shadow-sm">
+      <div class="card">
         <div class="card-body grid gap-4 md:grid-cols-4">
-          <div><p class="text-xs uppercase text-base-content/60">SKU</p><p class="font-semibold text-base-content">{{
+          <div><p class="text-xs uppercase text-subtle">SKU</p><p class="font-semibold text-base-content">{{
             record.sku }}</p></div>
-          <div><p class="text-xs uppercase text-base-content/60">Warehouse</p><p class="font-semibold text-base-content">{{
+          <div><p class="text-xs uppercase text-subtle">Warehouse</p><p class="font-semibold text-base-content">{{
             record.warehouse_location }}</p></div>
-          <div><p class="text-xs uppercase text-base-content/60">Available</p><p
+          <div><p class="text-xs uppercase text-subtle">Available</p><p
               class="font-semibold text-base-content">{{ record.available_quantity }}</p></div>
-          <div><p class="text-xs uppercase text-base-content/60">Status</p><span class="badge"
+          <div><p class="text-xs uppercase text-subtle">Status</p><span class="badge"
               :class="statusClass(record.status)">{{ record.status ?? 'UNKNOWN' }}</span></div>
         </div>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
-        <section class="card border border-base-300 bg-base-100 shadow-sm">
+        <section class="card">
           <div class="card-body space-y-3">
             <h2 class="text-lg font-semibold text-base-content">Update record</h2>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">SKU</span>
               <input v-model="updateForm.sku" class="input input-bordered input-sm" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Warehouse location</span>
               <input v-model="updateForm.warehouse_location" class="input input-bordered input-sm" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Reorder threshold</span>
               <input v-model.number="updateForm.reorder_threshold" type="number" min="0"
                 class="input input-bordered input-sm" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Safety stock</span>
               <input v-model.number="updateForm.safety_stock" type="number" min="0"
                 class="input input-bordered input-sm" />
@@ -54,10 +54,10 @@
           </div>
         </section>
 
-        <section class="card border border-base-300 bg-base-100 shadow-sm">
+        <section class="card">
           <div class="card-body space-y-3">
             <h2 class="text-lg font-semibold text-base-content">Restock</h2>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Quantity to add</span>
               <input v-model.number="restockForm.quantity" type="number" min="1"
                 class="input input-bordered input-sm" />
@@ -68,14 +68,14 @@
           </div>
         </section>
 
-        <section class="card border border-base-300 bg-base-100 shadow-sm">
+        <section class="card">
           <div class="card-body space-y-3">
             <h2 class="text-lg font-semibold text-base-content">Adjust stock</h2>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Delta (use negative to subtract)</span>
               <input v-model.number="adjustForm.delta" type="number" class="input input-bordered input-sm" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Reason</span>
               <input v-model="adjustForm.reason" class="input input-bordered input-sm" placeholder="e.g. stocktake correction" />
             </label>
@@ -85,14 +85,14 @@
           </div>
         </section>
 
-        <section class="card border border-base-300 bg-base-100 shadow-sm">
+        <section class="card">
           <div class="card-body space-y-3">
             <h2 class="text-lg font-semibold text-base-content">Reserve / release</h2>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Order ID</span>
               <input v-model="reserveForm.order_id" class="input input-bordered input-sm" placeholder="order-123" />
             </label>
-            <label class="form-control flex flex-col gap-1">
+            <label class="form-field">
               <span class="label-text">Quantity to reserve</span>
               <input v-model.number="reserveForm.quantity" type="number" min="1"
                 class="input input-bordered input-sm" />

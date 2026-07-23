@@ -1,24 +1,23 @@
 <template>
   <div class="min-h-screen px-4 py-10 text-base-content">
     <div class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-      <aside class="card h-fit shadow-sm">
+      <aside class="card h-fit">
         <div class="card-body space-y-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Admin</p>
+          <p class="section-kicker">Admin</p>
 
           <nav v-for="section in sections" :key="section.heading" class="space-y-1">
             <p class="px-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-base-content/40">
               {{ section.heading }}
             </p>
-            <router-link v-for="item in section.items" :key="item.to" :to="item.to"
-              class="block rounded-lg px-3 py-2 text-sm transition-colors"
-              :class="isActive(item) ? 'bg-primary/10 font-semibold text-primary' : 'text-base-content/70 hover:bg-base-200 hover:text-base-content'">
+            <router-link v-for="item in section.items" :key="item.to" :to="item.to" class="nav-link"
+              :class="isActive(item) ? 'nav-link-active' : ''">
               {{ item.label }}
             </router-link>
           </nav>
 
-          <div class="border-t border-base-300 pt-3">
+          <div class="divider-soft pt-3">
             <router-link to="/"
-              class="block rounded-lg px-3 py-2 text-sm text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content">
+              class="block rounded-lg px-3 py-2 text-sm text-subtle transition-colors hover:bg-base-200 hover:text-base-content">
               ← Back to store
             </router-link>
           </div>

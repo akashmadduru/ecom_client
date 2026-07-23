@@ -5,10 +5,10 @@
         <PageHeader eyebrow="Checkout" title="Secure your order"
           description="Choose a delivery address, select a payment method, and confirm your purchase in a single step." />
 
-        <section class="rounded-[1.6rem] border border-base-300 bg-base-100 p-6 shadow-sm">
+        <section class="surface-card">
           <div class="mb-4 flex items-center justify-between">
             <h2 class="text-xl font-semibold">Delivery address</h2>
-            <router-link class="text-sm text-orange-600" to="/address">Manage addresses</router-link>
+            <router-link class="text-sm text-primary" to="/address">Manage addresses</router-link>
           </div>
           <div class="space-y-3">
             <label v-for="address in ecommerceStore.addresses" :key="address.id"
@@ -19,20 +19,20 @@
                   <span class="font-semibold">{{ address.label }}</span>
                   <span class="badge badge-outline">{{ address.type }}</span>
                 </div>
-                <p class="text-sm text-base-content/70">{{ address.street }}</p>
-                <p class="text-sm text-base-content/70">{{ address.city }} · {{ address.state }} · {{
+                <p class="text-sm text-muted">{{ address.street }}</p>
+                <p class="text-sm text-muted">{{ address.city }} · {{ address.state }} · {{
                   address.pincode }}</p>
               </div>
             </label>
           </div>
         </section>
 
-        <section class="rounded-[1.6rem] border border-base-300 bg-base-100 p-6 shadow-sm">
+        <section class="surface-card">
           <h2 class="mb-4 text-xl font-semibold">Payment method</h2>
           <div class="grid gap-3 md:grid-cols-3">
             <button v-for="method in methods" :key="method"
               class="rounded-[1.1rem] border px-4 py-3 text-left transition"
-              :class="ecommerceStore.paymentMethod === method ? 'border-orange-500 bg-orange-400/15 font-semibold text-orange-700' : 'border-base-300 bg-base-200 text-base-content/80'"
+              :class="ecommerceStore.paymentMethod === method ? 'border-primary bg-accent/15 font-semibold text-primary' : 'border-base-300 bg-base-200 text-base-content/80'"
               @click="ecommerceStore.setPaymentMethod(method)">
               {{ method }}
             </button>
@@ -40,14 +40,14 @@
         </section>
       </div>
 
-      <aside class="rounded-[1.6rem] border border-base-300 bg-base-100 p-6 shadow-sm">
+      <aside class="surface-card">
         <h2 class="text-xl font-semibold">Order summary</h2>
         <div class="mt-4 space-y-3">
           <div v-for="item in ecommerceStore.cart" :key="item.id"
             class="flex items-center justify-between rounded-[1rem] border border-base-300 bg-base-200 px-3 py-2">
             <div>
               <p class="font-medium">{{ item.title }}</p>
-              <p class="text-sm text-base-content/70">Qty {{ item.quantity }}</p>
+              <p class="text-sm text-muted">Qty {{ item.quantity }}</p>
             </div>
             <p class="font-semibold">₹{{ item.retail_price * item.quantity }}</p>
           </div>

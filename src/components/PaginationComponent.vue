@@ -58,7 +58,7 @@ function next() {
     <div class="flex flex-wrap items-center justify-center gap-2">
       <button v-for="page in visiblePages" :key="page" @click="goTo(page)"
         class="btn btn-sm h-10 w-10 border border-base-300 transition-all duration-200" :class="page === pagination.page
-          ? 'btn-primary text-white shadow-sm'
+          ? 'btn-primary text-white'
           : 'btn-ghost text-base-content/80 hover:bg-base-200 hover:text-base-content'">
         {{ page }}
       </button>
@@ -69,7 +69,7 @@ function next() {
     </button>
   </div>
 
-  <p class="mt-4 text-center text-sm text-base-content/70">
+  <p class="mt-4 text-center text-sm text-muted">
     Page {{ pagination.page }}
     of {{ pagination.total_pages }}
     • {{ pagination.total_items }} {{ itemLabel }}
