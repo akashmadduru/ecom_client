@@ -28,14 +28,14 @@
               {{ formError.formError.value }}
             </div>
 
-            <label class="form-control flex flex-col gap-2">
+            <label class="form-field">
               <input v-model="form.username" class="input input-bordered"
                 :class="{ 'input-error': formError.fieldError('username') }" type="text"
                 placeholder="Enter username" required />
               <span v-if="formError.fieldError('username')" class="field-error">{{
                 formError.fieldError('username') }}</span>
             </label>
-            <label class="form-control flex flex-col gap-2">
+            <label class="form-field">
               <input v-model="form.password" class="input input-bordered"
                 :class="{ 'input-error': formError.fieldError('password') }" type="password"
                 placeholder="Enter password" required minlength="1" />

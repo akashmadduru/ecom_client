@@ -82,9 +82,9 @@
                 :class="{ 'input-error': formError.fieldError('retail_price') }" />
             </label>
             <label class="form-field">
-              <span class="label-text">Discount (₹ off retail price)</span>
-              <input v-model.number="form.discount" type="number" min="0" step="0.01" class="input input-bordered"
-                required />
+              <span class="label-text">Discount (%)</span>
+              <input v-model.number="form.discount" type="number" min="0" max="100" step="0.01"
+                class="input input-bordered" required />
             </label>
           </div>
 

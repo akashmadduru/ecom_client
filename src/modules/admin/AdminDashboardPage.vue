@@ -5,7 +5,7 @@
 
     <section v-for="group in groups" :key="group.heading" class="space-y-3">
       <h2 class="section-kicker">{{ group.heading }}</h2>
-      <div class="form-row-2 lg:grid-cols-3">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <router-link v-for="link in group.links" :key="link.to" :to="link.to"
           class="card transition hover:-translate-y-0.5 hover:border-primary/40">
           <div class="card-body">

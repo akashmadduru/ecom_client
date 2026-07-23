@@ -189,10 +189,6 @@ body {
   color: color-mix(in srgb, var(--color-base-content) 50%, transparent);
 }
 
-.card_bg {
-  background-image: linear-gradient(135deg, rgba(245, 175, 175, 0.14), rgba(172, 79, 89, 0.08));
-}
-
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
