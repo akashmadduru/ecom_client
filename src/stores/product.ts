@@ -11,6 +11,7 @@ import {
   updateProduct as updateProductRequest,
 } from '@/api/ProductsApi'
 import { normalizeApiError } from '@/utils/apiError'
+import { resolveImageUrls } from '@/utils/image'
 
 export const useProductStore = defineStore('products', () => {
   const products = ref<Product[]>([])
@@ -38,11 +39,7 @@ export const useProductStore = defineStore('products', () => {
     try {
       const response = await getProduct(id)
       selectedProduct.value = response
-      try {
-        selectedProductImageList.value = JSON.parse(response.image_urls)
-      } catch {
-        selectedProductImageList.value = []
-      }
+      selectedProductImageList.value = resolveImageUrls(response.image_urls)
     } catch (err) {
       error.value = normalizeApiError(err).message
       throw err

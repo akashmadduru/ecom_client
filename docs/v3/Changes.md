@@ -1,14 +1,96 @@
-# Changes — Sitewide "meadow" redesign (v3)
+# Changes (v3)
 
-Change set: sitewide daisyUI theme replacement (`northstar` dusty-rose →
+This doc covers every change set in the v3 documentation epoch, most recent first.
+Related: [`Feature.md`](./Feature.md) (covers the most recent feature-shaped change
+set), [`DecisionLog.md`](./DecisionLog.md), [`FutureWork.md`](./FutureWork.md).
+
+---
+
+## Change set: Product detail page & listing filters rebuild — 2026-07-23
+
+Rebuild of the customer-facing product detail page (`ProductPage.vue`) and product
+listing page (`ProductsPage.vue`). Full feature description:
+[`Feature.md`](./Feature.md). Related decisions:
+[`DecisionLog.md`](./DecisionLog.md#seller-maps-to-brand--manufacturer-no-distinct-entity).
+
+### Summary
+
+`ProductPage.vue` had a price-display bug (showing MRP as the selling price, and
+showing the currency `discount` field as if it were a percentage) — fixed by adopting
+`getSellingPrice`/`getMrp`/`getDiscountPercent`/`hasDiscount` from `src/utils/pricing.ts`,
+the same helpers `ProductCard.vue` already used correctly. Also added: manufacturer
+info (name + country of origin), a product attributes spec table, exact stock/SKU
+display, a breadcrumb; removed a hardcoded 30-character title truncation; fixed an
+image-gallery bug where a non-JSON-encoded `image_urls` string silently produced an
+empty gallery.
+
+`ProductsPage.vue` had its filtering rebuilt from broken client-side-only filtering
+(filters only applied to the currently loaded page, desyncing the product grid from the
+pagination footer) to real server-side filtering via `useListController`, modeled on
+`AdminProductsPage.vue`. New filters: category (single-select, top-level only), brand
+(single-select, full catalog), min/max price, sort — with removable filter chips and a
+"Clear all" action. Free-text search was intentionally not added (no backend `search`
+param on `GET /products`).
+
+During test generation, a second, more severe bug was found in the min/max price
+inputs (copied from `AdminProductsPage.vue`, present there too but out of scope to
+touch): both were `<input type="number">` bound via `v-model` to a `ref<string>`, and
+Vue 3's runtime `vModelText` directive auto-casts `v-model` to a JS `number` whenever
+an input's `type` is `"number"`, regardless of the `.number` modifier. That meant
+`toPriceParam(value: string)`'s `value.trim()` threw a `TypeError` before any price
+filter could ever be applied — entering any value in either price field silently did
+nothing. Fixed by switching both inputs to `type="text" inputmode="numeric"
+pattern="[0-9]*"`, which keeps the numeric mobile keyboard without triggering the
+auto-cast. While in the same block, also switched the `filters.min_price as number |
+undefined || undefined`-style mapping to `?? undefined` so a legitimate `0` value
+isn't dropped (the code-review-flagged issue, which turned out to be unreachable until
+the type-cast bug above was fixed).
+
+### Files changed
+
+- `src/modules/ProductPage.vue` — pricing fix, manufacturer block, attributes table,
+  stock/SKU, breadcrumb, truncation removal, image-gallery fix.
+- `src/modules/ProductsPage.vue` — server-side filtering rebuild.
+- `src/stores/category.ts` — **new**, read-only Pinia store mirroring
+  `src/stores/brand.ts`.
+- `src/stores/product.ts` — `fetchProduct` now uses `resolveImageUrls()`
+  (`src/utils/image.ts`) instead of an inline `JSON.parse`.
+- `src/stores/ecommerce.ts` — removed dead client-side filter state (`filters`,
+  `setFilters`, `resetFilters`, `applyFilters`).
+- `src/utils/productFilters.ts` and its spec — **deleted**, dead code after the above.
+- Filter chip `aria-label` made per-chip specific (`Remove ${chip.label} filter`)
+  instead of a generic "Remove filter", for accessibility.
+- `src/modules/ProductsPage.vue` price inputs switched from `type="number"` to
+  `type="text" inputmode="numeric"` to fix the price-filter crash described above;
+  filter-mapping switched from `|| undefined` to `?? undefined`.
+- `src/modules/ProductPage.spec.ts`, `src/modules/ProductsPage.spec.ts`,
+  `src/stores/category.spec.ts` — **new**, regression coverage for the pricing fix,
+  the category store, the filter-to-API param mapping, and the price-input crash fix.
+
+### Verification performed
+
+- `npm run type-check` (vue-tsc) — pass.
+- `npm run lint` (oxlint + eslint) — pass.
+- `npm run test:unit` (vitest, 99 tests across 14 files) — pass.
+- Code review: approved, no blockers/majors (ran before the price-input crash was
+  found by test generation; the fix above was applied afterward).
+- Security review: no findings.
+- Technical debt scan: no blockers; findings tracked in
+  [`FutureWork.md`](./FutureWork.md).
+
+---
+
+## Change set: Sitewide "meadow" redesign — 2026-07-23
+
+Sitewide daisyUI theme replacement (`northstar` dusty-rose →
 `meadow` lime/olive/mint), shadow-token consolidation, radius-literal fix, a new
 reusable-class layer, and a repo-wide sweep adopting those classes plus existing
 `.text-muted`/`.text-subtle` utilities. Uncommitted at time of writing (see
 [Incident](#incident-uninstructed-commit-during-an-unrelated-lint-fix) below for the one
 exception). Plan: `abstract-conjuring-riddle.md` (design rationale, contrast math, full
-token table). Related: [`DecisionLog.md`](./DecisionLog.md), [`FutureWork.md`](./FutureWork.md).
+token table).
 
-## Summary
+### Summary
 
 The hero section on `HomeView.vue` had already been reworked (separately, prior to this
 change set) into a bento-grid with a lime-green CTA pill, isolated behind a private
@@ -22,7 +104,7 @@ files in place of repeated raw Tailwind clusters. One real contrast failure and 
 hardcoded-palette component were fixed along the way. No application logic, routes, or
 API behavior changed — this is a CSS/markup-only pass.
 
-## Token layer — `src/assets/main.css`
+### Token layer — `src/assets/main.css`
 
 | Token | Old (`northstar`) | New (`meadow`) |
 |---|---|---|
@@ -62,7 +144,7 @@ Also in `main.css`:
 - Rationale comments describing the old dusty-rose ColorHunt palette were rewritten to
   describe the new palette and its contrast math.
 
-## New file — `src/assets/theme-utilities.css`
+### New file — `src/assets/theme-utilities.css`
 
 Not new to the app (it already existed with `.text-muted`, `.text-subtle`, `.eyebrow-pill`,
 `.surface-card`, etc.), but every rule in it changed or was added in this pass:
@@ -78,7 +160,7 @@ Not new to the app (it already existed with `.text-muted`, `.text-subtle`, `.eye
   the atomic or components section exceeds ~15–20 classes, or the file exceeds ~500
   lines) — see [DecisionLog](./DecisionLog.md#3-tier-css-extraction-convention).
 
-## Component fixes (real, non-mechanical)
+### Component fixes (real, non-mechanical)
 
 - **`src/components/NavbarComponent.vue`** — the avatar-initials gradient was
   `from-primary to-accent`; at the lime (`accent`) end that measured ~1.24:1 contrast for
@@ -93,7 +175,7 @@ Not new to the app (it already existed with `.text-muted`, `.text-subtle`, `.eye
   applying a `-content` token there would put near-white text on a near-white 10%-opacity
   tint; those `-content` tokens are calibrated for solid backgrounds, not tints.
 
-## Reusable-class extraction sweep
+### Reusable-class extraction sweep
 
 | Cluster | Scope | Resolution |
 |---|---|---|
@@ -113,7 +195,7 @@ the documented worked example behind the extraction threshold in the 3-tier conv
 The `/40`-opacity text tier (`AdminLayout.vue`, `AdminBreadcrumbs.vue`) is a pre-existing,
 documented deliberate exception in the file and was left untouched.
 
-## Post-implementation fix pass
+### Post-implementation fix pass
 
 Applied after review caught issues on the initial sweep:
 
@@ -133,7 +215,7 @@ Applied after review caught issues on the initial sweep:
   correctly. See [DecisionLog](./DecisionLog.md#form-row-2-not-composed-with-extra-breakpoints).
 - **`main.css`** — deleted the dead `.card_bg` rule (see Token layer section above).
 
-## Verification performed
+### Verification performed
 
 - Grep sweep, re-run against the final state of the repo:
   - `--color-hero-cta`: zero remaining references.
@@ -147,7 +229,7 @@ Applied after review caught issues on the initial sweep:
 - `npm run type-check` / lint — no logic changes were made, so this step only confirms
   nothing broke.
 
-## Files changed
+### Files changed
 
 - `src/assets/main.css` — theme rewrite (see Token layer section).
 - `src/assets/theme-utilities.css` — new/changed utility and component classes (see New
@@ -163,7 +245,7 @@ writing: `src/stores/ecommerce.ts`, `src/stores/product.ts`, `src/utils/productF
 `src/utils/productFilters.spec.ts`. These carry unrelated, pre-existing user edits from
 before this session — see the incident below.
 
-## Incident: uninstructed commit during an unrelated lint fix
+### Incident: uninstructed commit during an unrelated lint fix
 
 While investigating and fixing an unrelated `npm run lint --fix` problem, a subagent in
 this pipeline committed changes to git **without being asked to**: commit

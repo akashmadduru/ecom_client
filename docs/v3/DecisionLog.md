@@ -1,7 +1,148 @@
-# Decision Log — Sitewide "meadow" redesign (v3)
+# Decision Log (v3)
 
-Append-only. Most recent first. Never edit historical entries except to mark them
-superseded. Audience: engineering.
+Append-only, spanning every change set in the v3 documentation epoch. Most recent
+first. Never edit historical entries except to mark them superseded. Audience:
+engineering.
+
+---
+
+## 2026-07-23 — "Seller" maps to Brand + Manufacturer, not a distinct entity {#seller-maps-to-brand--manufacturer-no-distinct-entity}
+
+**Context.** Product detail page & listing filters rebuild
+([`Feature.md`](./Feature.md), [`Changes.md`](./Changes.md#change-set-product-detail-page--listing-filters-rebuild--2026-07-23)).
+
+**Decision.** "Seller" information on the product detail page is presented as Brand +
+Manufacturer (name, country of origin). No separate "seller" concept was introduced.
+
+**Why.** A repo-wide grep for seller-shaped fields/entities (before deciding) found none
+— the data model has `brand` / `brand_id` and `manufacturer_id` on `Product`, and no
+seller table, seller API, or seller field anywhere. Brand and Manufacturer already carry
+the information a "sold by" section would need (who makes it, where it's from); adding a
+new entity to represent something the backend doesn't model would be fabricating
+structure the API doesn't have.
+
+**Alternatives rejected.** *Add a placeholder "Seller" section backed by `brand`
+alone* — rejected: would misrepresent brand (who designed/branded the product) as
+seller (who fulfills the order), two different real-world roles this marketplace's data
+model doesn't currently distinguish. *Wait and add a real seller entity* — out of scope
+for a storefront page rebuild; flagged as a data-model question, not solved here.
+
+---
+
+## 2026-07-23 — Category filter is single-select, top-level only {#category-filter-single-select-top-level-only}
+
+**Context.** Product detail page & listing filters rebuild.
+
+**Decision.** `ProductsPage.vue`'s category filter offers exactly one selectable
+category at a time, drawn only from the top-level list `GET /products/categories`
+returns. No subcategory tree, no multi-select.
+
+**Why.** Building a real category tree would require an N+1 `/subtree` call per root
+category just to populate a UI a shopper may never expand — expensive for a filter
+sidebar that loads eagerly on page mount. A fake/flattened tree assembled from partial
+data was rejected as more misleading than a flat, honest top-level list.
+
+**Alternatives rejected.** *Fetch `/subtree` for every root category up front* —
+rejected: N+1 network calls on every listing-page load, for a feature (subcategory
+narrowing) not requested. *Build a client-side fake hierarchy from category names* —
+rejected: `Category` records don't expose enough structure to do this reliably, and a
+wrong hierarchy is worse than no hierarchy.
+
+**Revisit when.** The backend exposes a single endpoint that returns the full
+category tree (or enough parent/child data) in one request without N+1 calls.
+
+---
+
+## 2026-07-23 — Brand filter is single-select, not checkboxes {#brand-filter-single-select-not-checkboxes}
+
+**Context.** Product detail page & listing filters rebuild.
+
+**Decision.** `ProductsPage.vue`'s brand filter is a single `<select>`, not a
+multi-select checkbox list.
+
+**Why.** `ProductFilterParams.brand_id` (and the backend `GET /products` endpoint
+behind it) accepts exactly one brand ID per request. True multi-select would require
+issuing multiple requests and client-merging the results across pages — which
+reintroduces the exact page-scoped-filtering bug class this rebuild exists to fix (grid
+and pagination footer describing two different result sets).
+
+**Alternatives rejected.** *Multi-select with client-side request merging* —
+rejected for the reason above. *Multi-select that silently only sends the first
+selected brand* — rejected: worse than no multi-select, since the UI would imply
+behavior the request doesn't deliver.
+
+**Revisit when.** The backend accepts a list of brand IDs (e.g. `brand_id=1,2,3`) on
+`GET /products`.
+
+---
+
+## 2026-07-23 — No search box on the product listing page {#no-search-box-products-listing}
+
+**Context.** Product detail page & listing filters rebuild.
+
+**Decision.** `ProductsPage.vue` ships with no free-text search input, even though the
+old (buggy) implementation had one.
+
+**Why.** `GET /products` has no `search` query parameter (confirmed against the API
+client and postman docs). The old search box searched only the single page of products
+already loaded client-side — for any catalog larger than one page, it would silently
+miss most matching results while looking like a working, catalog-wide search. Shipping
+that misleading behavior again, just to have *a* search box, was rejected as worse than
+having none.
+
+**Alternatives rejected.** *Keep the client-side, current-page-only search* —
+rejected for the reason above: false confidence is worse than an absent feature.
+*Build a client-side search over the full catalog by fetching every page* — rejected:
+defeats the purpose of server-side pagination, and doesn't scale.
+
+**Revisit when.** The backend adds a `search` param to `GET /products`. Tracked as a
+product-visible capability gap in [`FutureWork.md`](./FutureWork.md), not silently
+worked around.
+
+---
+
+## 2026-07-23 — `ProductsPage.vue` kept as a single file, no sub-component extraction {#products-page-single-file-no-extraction}
+
+**Context.** Product detail page & listing filters rebuild.
+
+**Decision.** The rebuilt `ProductsPage.vue` (filters sidebar, chips, grid, pagination)
+was kept as one file rather than split into sidebar/chip/grid sub-components.
+
+**Why.** This matches the proven scale of `AdminProductsPage.vue`, which uses the same
+`useListController` pattern and is also a single file. Rule of three applied: extract a
+shared component only once a second real caller needs it — nothing today reuses the
+filter sidebar or chip row outside this page.
+
+**Alternatives rejected.** *Pre-emptively extract `ProductFilterSidebar` /
+`FilterChips` components* — rejected: no second consumer exists yet; premature
+extraction would add indirection without a concrete reuse benefit, and would diverge
+from how `AdminProductsPage.vue` is structured, making the two pages harder to compare
+side by side.
+
+**Revisit when.** A second page needs the same filter sidebar or chip-row UI — extract
+at that point, not before.
+
+---
+
+## 2026-07-23 — Filter local state shaped directly as `ProductFilterParams` fields {#filter-state-shaped-as-productfilterparams}
+
+**Context.** Product detail page & listing filters rebuild.
+
+**Decision.** `ProductsPage.vue`'s local filter refs (`categoryFilter`, `brandFilter`,
+`minPrice`, `maxPrice`, `sortFilter`) map directly onto `ProductFilterParams` field
+names, with no separate translation/mapping layer between UI state and API params.
+
+**Why.** The old, competing `ecommerceStore.filters` shape was already being retired in
+this same change (see the `ecommerce.ts` entry below); introducing a *new* intermediate
+shape would just relocate the two-shapes-drifting-apart problem instead of removing it.
+Shaping local state directly as the params the API expects keeps there being exactly one
+representation of "what filters are active."
+
+**Alternatives rejected.** *A dedicated `ProductListFilters` view-model type, mapped to
+`ProductFilterParams` at request time* — rejected as unnecessary indirection for five
+scalar fields with a 1:1 name/type correspondence to the API params; would be worth
+reconsidering only if the UI-side shape needs to diverge from the API shape (e.g.
+multi-select fields), which isn't the case today.
 
 ---
 

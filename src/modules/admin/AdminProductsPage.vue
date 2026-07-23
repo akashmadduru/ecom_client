@@ -77,6 +77,7 @@ import { useConfirmAction } from '@/composables/useConfirmAction'
 import type { ListQuery } from '@/composables/listController.types'
 import type { DataTableColumn } from '@/components/admin/dataTable.types'
 import type { Product, ProductFilterParams } from '@/interfaces/product'
+import { PRODUCT_SORT_VALUES, toPriceParam, type SortOption } from '@/utils/productListFilters'
 
 const productStore = useProductStore()
 const ecommerceStore = useEcommerceStore()
@@ -91,25 +92,18 @@ const columns: DataTableColumn<Product>[] = [
   { key: 'discount', header: 'Discount' },
 ]
 
-const sortOptions: { value: string; label: string }[] = [
-  { value: '', label: 'Default' },
-  { value: 'retail_price', label: 'Price: Low to High' },
-  { value: '-retail_price', label: 'Price: High to Low' },
-  { value: '-rating', label: 'Rating: High to Low' },
-  { value: '-id', label: 'Newest first' },
+const sortOptions: SortOption[] = [
+  { value: PRODUCT_SORT_VALUES.featured, label: 'Default' },
+  { value: PRODUCT_SORT_VALUES.priceAsc, label: 'Price: Low to High' },
+  { value: PRODUCT_SORT_VALUES.priceDesc, label: 'Price: High to Low' },
+  { value: PRODUCT_SORT_VALUES.ratingDesc, label: 'Rating: High to Low' },
+  { value: PRODUCT_SORT_VALUES.newest, label: 'Newest first' },
 ]
 
 const brandFilter = ref<string>('')
 const minPrice = ref<string>('')
 const maxPrice = ref<string>('')
 const sortFilter = ref<string>('')
-
-function toPriceParam(value: string): number | undefined {
-  const trimmed = value.trim()
-  if (trimmed === '') return undefined
-  const parsed = Number(trimmed)
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined
-}
 
 const controller = useListController<Product>({
   initialPageSize: 10,

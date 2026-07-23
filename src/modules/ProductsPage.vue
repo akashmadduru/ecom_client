@@ -9,42 +9,36 @@
           </div>
 
           <label class="form-control">
-            <span class="label-text">Search</span>
-            <input v-model="ecommerceStore.filters.search" class="input input-bordered" placeholder="Search products" />
-          </label>
-
-          <label class="form-control">
-            <span class="label-text">Category</span>
-            <select v-model="ecommerceStore.filters.category" class="select select-bordered">
-              <option value="">All categories</option>
-              <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-            </select>
-          </label>
-
-          <label class="form-control">
-            <span class="label-text">Brand</span>
-            <select v-model="ecommerceStore.filters.brand" class="select select-bordered">
-              <option value="">All brands</option>
-              <option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option>
-            </select>
-          </label>
-
-          <label class="form-control">
-            <span class="label-text">Max price</span>
-            <input v-model.number="ecommerceStore.filters.maxPrice" type="number" class="input input-bordered" />
-          </label>
-
-          <label class="form-control">
             <span class="label-text">Sort by</span>
-            <select v-model="ecommerceStore.filters.sortBy" class="select select-bordered">
-              <option value="featured">Featured</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
+            <select class="select select-bordered" :value="sortFilter" @change="onSortChange">
+              <option v-for="option in sortOptions" :key="option.value" :value="option.value">{{ option.label }}
+              </option>
             </select>
           </label>
 
-          <button class="btn btn-outline" @click="resetFilters">Clear filters</button>
+          <div class="form-control">
+            <span class="label-text">Price</span>
+            <div class="flex items-center justify-between text-sm text-muted">
+              <span>₹{{ minPrice }}</span>
+              <span>₹{{ maxPrice }}</span>
+            </div>
+            <input v-model.number="minPrice" type="range" :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP"
+              class="range range-sm range-primary" @change="onMinPriceChange" />
+            <input v-model.number="maxPrice" type="range" :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP"
+              class="range range-sm range-primary mt-1" @change="onMaxPriceChange" />
+          </div>
+
+          <div class="form-control">
+            <span class="label-text">Category</span>
+            <CategoryTreeFilter :model-value="categoryFilter" @update:model-value="onCategoryFilterChange" />
+          </div>
+
+          <div class="form-control">
+            <span class="label-text">Brand</span>
+            <BrandFilterScroller :model-value="brandFilter" @update:model-value="onBrandFilterChange" />
+          </div>
+
+          <button class="btn btn-outline" @click="clearAll">Clear filters</button>
         </div>
       </aside>
 
@@ -53,49 +47,199 @@
           description="Discover products with filters, smart sorting, and quick purchase actions.">
         </PageHeader>
 
-        <SkeletonGrid v-if="productStore.loading && !productStore.products.length" :count="6" />
+        <div v-if="activeChips.length" class="flex flex-wrap items-center gap-2">
+          <span v-for="chip in activeChips" :key="chip.key"
+            class="eyebrow-pill eyebrow-pill-sm flex items-center gap-2">
+            {{ chip.label }}
+            <button class="text-base-content/60 hover:text-base-content" :aria-label="`Remove ${chip.label} filter`"
+              @click="chip.remove">✕</button>
+          </span>
+          <button class="text-sm text-muted underline hover:text-base-content" @click="clearAll">Clear all</button>
+        </div>
 
-        <ErrorState v-else-if="productStore.error" :message="productStore.error"
-          :on-retry="() => productStore.fetchProducts()" />
+        <SkeletonGrid v-if="controller.loading.value && !controller.items.value.length" :count="6" />
 
-        <EmptyState v-else-if="!filteredProducts.length" title="No products match your filters"
+        <ErrorState v-else-if="controller.error.value" :message="controller.error.value"
+          :on-retry="() => controller.refresh()" />
+
+        <EmptyState v-else-if="controller.isEmpty.value" title="No products match your filters"
           description="Try adjusting or clearing your filters to see more results." />
 
         <div v-else class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
+          <ProductCard v-for="product in controller.items.value" :key="product.id" :product="product" />
         </div>
 
-        <PaginationComponent v-if="filteredProducts.length" :pagination="productStore.pagination" item-label="products"
-          @change="productStore.goTo" />
+        <PaginationComponent v-if="controller.items.value.length" :pagination="controller.pagination.value"
+          item-label="products" @change="controller.setPage" />
       </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useProductStore } from '@/stores/product'
+import { computed, ref } from 'vue'
+import { useListController } from '@/composables/useListController'
+import type { ListQuery } from '@/composables/listController.types'
+import { getProducts } from '@/api/ProductsApi'
+import { useCategoryStore } from '@/stores/category'
+import { useBrandStore } from '@/stores/brand'
+import type { Product, ProductFilterParams } from '@/interfaces/product'
 import PageHeader from '@/components/PageHeader.vue'
 import ProductCard from '@/components/ProductCard.vue'
 import PaginationComponent from '@/components/PaginationComponent.vue'
 import SkeletonGrid from '@/components/SkeletonGrid.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
-import { useEcommerceStore } from '@/stores/ecommerce'
+import CategoryTreeFilter from '@/components/products/CategoryTreeFilter.vue'
+import BrandFilterScroller from '@/components/products/BrandFilterScroller.vue'
+import { PRODUCT_SORT_VALUES, type SortOption } from '@/utils/productListFilters'
 
-const productStore = useProductStore()
-const ecommerceStore = useEcommerceStore()
+const categoryStore = useCategoryStore()
+const brandStore = useBrandStore()
 
-const categories = computed(() => Array.from(new Set(productStore.products.map((product) => product.category))).sort())
-const brands = computed(() => Array.from(new Set(productStore.products.map((product) => product.brand))).sort())
+const sortOptions: SortOption[] = [
+  { value: PRODUCT_SORT_VALUES.featured, label: 'Featured' },
+  { value: PRODUCT_SORT_VALUES.priceAsc, label: 'Price: Low to High' },
+  { value: PRODUCT_SORT_VALUES.priceDesc, label: 'Price: High to Low' },
+  { value: PRODUCT_SORT_VALUES.ratingDesc, label: 'Top Rated' },
+  { value: PRODUCT_SORT_VALUES.newest, label: 'Newest' },
+]
 
-const filteredProducts = computed(() => ecommerceStore.applyFilters(productStore.products))
+const PRICE_MIN = 0
+const PRICE_MAX = 150000
+const PRICE_STEP = 500
 
-function resetFilters() {
-  ecommerceStore.resetFilters()
+const categoryFilter = ref<number | null>(null)
+const brandFilter = ref<number | null>(null)
+const minPrice = ref<number>(PRICE_MIN)
+const maxPrice = ref<number>(PRICE_MAX)
+const sortFilter = ref<string>('')
+
+const controller = useListController<Product>({
+  initialPageSize: 12,
+  fetcher: async (query: ListQuery, signal?: AbortSignal) => {
+    const filters = query.filters
+    const params: ProductFilterParams = {
+      category_id: (filters.category_id as number | undefined) ?? undefined,
+      brand_id: (filters.brand_id as number | undefined) ?? undefined,
+      min_price: (filters.min_price as number | undefined) ?? undefined,
+      max_price: (filters.max_price as number | undefined) ?? undefined,
+      sort: (filters.sort as string | undefined) ?? undefined,
+    }
+    const response = await getProducts(query.page, query.pageSize, params, signal)
+    return { items: response.products, pagination: response.pagination }
+  },
+})
+
+function onCategoryFilterChange(value: number | null) {
+  categoryFilter.value = value
+  controller.setFilter('category_id', value ?? undefined)
 }
 
-onMounted(() => {
-  productStore.fetchProducts(1)
+function onBrandFilterChange(value: number | null) {
+  brandFilter.value = value
+  controller.setFilter('brand_id', value ?? undefined)
+}
+
+function onMinPriceChange() {
+  if (minPrice.value > maxPrice.value) minPrice.value = maxPrice.value
+  controller.setFilter('min_price', minPrice.value > PRICE_MIN ? minPrice.value : undefined)
+}
+
+function onMaxPriceChange() {
+  if (maxPrice.value < minPrice.value) maxPrice.value = minPrice.value
+  controller.setFilter('max_price', maxPrice.value < PRICE_MAX ? maxPrice.value : undefined)
+}
+
+function onSortChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  sortFilter.value = value
+  controller.setFilter('sort', value === '' ? undefined : value)
+}
+
+function clearAll() {
+  categoryFilter.value = null
+  brandFilter.value = null
+  minPrice.value = PRICE_MIN
+  maxPrice.value = PRICE_MAX
+  sortFilter.value = ''
+  controller.reset()
+}
+
+interface FilterChip {
+  key: string
+  label: string
+  remove: () => void
+}
+
+const activeChips = computed<FilterChip[]>(() => {
+  const chips: FilterChip[] = []
+  const filters = controller.filters.value
+
+  const categoryId = filters.category_id as number | undefined
+  if (categoryId) {
+    const category = categoryStore.findCategoryById(categoryId)
+    chips.push({
+      key: 'category_id',
+      label: `Category: ${category?.name ?? categoryId}`,
+      remove: () => {
+        categoryFilter.value = null
+        controller.setFilter('category_id', undefined)
+      },
+    })
+  }
+
+  const brandId = filters.brand_id as number | undefined
+  if (brandId) {
+    const brand = brandStore.brands.find((item) => item.id === brandId)
+    chips.push({
+      key: 'brand_id',
+      label: `Brand: ${brand?.name ?? brandId}`,
+      remove: () => {
+        brandFilter.value = null
+        controller.setFilter('brand_id', undefined)
+      },
+    })
+  }
+
+  const minPriceFilter = filters.min_price as number | undefined
+  if (minPriceFilter !== undefined) {
+    chips.push({
+      key: 'min_price',
+      label: `Min ₹${minPriceFilter}`,
+      remove: () => {
+        minPrice.value = PRICE_MIN
+        controller.setFilter('min_price', undefined)
+      },
+    })
+  }
+
+  const maxPriceFilter = filters.max_price as number | undefined
+  if (maxPriceFilter !== undefined) {
+    chips.push({
+      key: 'max_price',
+      label: `Max ₹${maxPriceFilter}`,
+      remove: () => {
+        maxPrice.value = PRICE_MAX
+        controller.setFilter('max_price', undefined)
+      },
+    })
+  }
+
+  const sort = filters.sort as string | undefined
+  if (sort) {
+    const option = sortOptions.find((item) => item.value === sort)
+    chips.push({
+      key: 'sort',
+      label: `Sort: ${option?.label ?? sort}`,
+      remove: () => {
+        sortFilter.value = ''
+        controller.setFilter('sort', undefined)
+      },
+    })
+  }
+
+  return chips
 })
+
 </script>

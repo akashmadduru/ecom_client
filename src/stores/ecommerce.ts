@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Product } from '@/interfaces/product'
-import { filterAndSortProducts, type ProductFilters } from '@/utils/productFilters'
 
 export interface CartItem {
   id: number
@@ -74,15 +73,6 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
   const isLoaded = ref(false)
   const isProcessing = ref<Record<string, boolean>>({})
   const toasts = ref<ToastMessage[]>([])
-
-  // shared product filters so UI can persist filter state across pages
-  const filters = ref<ProductFilters>({
-    search: '',
-    category: '',
-    brand: '',
-    maxPrice: null,
-    sortBy: 'featured',
-  })
 
   async function loadInitialData() {
     if (isLoaded.value) return
@@ -209,24 +199,6 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
     paymentMethod.value = method
   }
 
-  function setFilters(next: Partial<ProductFilters>) {
-    filters.value = { ...filters.value, ...next }
-  }
-
-  function resetFilters() {
-    filters.value = {
-      search: '',
-      category: '',
-      brand: '',
-      maxPrice: null,
-      sortBy: 'featured',
-    }
-  }
-
-  function applyFilters(products: Product[]) {
-    return filterAndSortProducts(products, filters.value)
-  }
-
   function placeOrder() {
     if (!cart.value.length) return null
 
@@ -289,11 +261,6 @@ export const useEcommerceStore = defineStore('ecommerce', () => {
     setShippingAddress,
     setPaymentMethod,
     placeOrder,
-    // filters
-    filters,
-    setFilters,
-    resetFilters,
-    applyFilters,
     isProcessing,
     toasts,
     showToast,
