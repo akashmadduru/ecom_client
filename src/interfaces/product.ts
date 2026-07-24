@@ -55,5 +55,6 @@ export interface ProductFilterParams {
   category_id?: number
   min_price?: number
   max_price?: number
+  min_rating?: number
   sort?: string
 }

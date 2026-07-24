@@ -22,10 +22,20 @@
               <span>₹{{ minPrice }}</span>
               <span>₹{{ maxPrice }}</span>
             </div>
-            <input v-model.number="minPrice" type="range" :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP"
-              class="range range-sm range-primary" @change="onMinPriceChange" />
-            <input v-model.number="maxPrice" type="range" :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP"
-              class="range range-sm range-primary mt-1" @change="onMaxPriceChange" />
+            <div class="price-slider">
+              <div class="price-slider-track"></div>
+              <div class="price-slider-fill" :style="{ left: minPercent + '%', right: (100 - maxPercent) + '%' }">
+              </div>
+              <input v-model.number="minPrice" type="range" :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP"
+                class="price-slider-input text-primary" @change="onMinPriceChange" />
+              <input v-model.number="maxPrice" type="range" :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP"
+                class="price-slider-input text-primary" @change="onMaxPriceChange" />
+            </div>
+          </div>
+
+          <div class="form-control">
+            <span class="label-text">Rating</span>
+            <RatingFilter :model-value="minRatingFilter" @update:model-value="onMinRatingChange" />
           </div>
 
           <div class="form-control">
@@ -92,6 +102,7 @@ import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import CategoryTreeFilter from '@/components/products/CategoryTreeFilter.vue'
 import BrandFilterScroller from '@/components/products/BrandFilterScroller.vue'
+import RatingFilter from '@/components/products/RatingFilter.vue'
 import { PRODUCT_SORT_VALUES, type SortOption } from '@/utils/productListFilters'
 
 const categoryStore = useCategoryStore()
@@ -113,7 +124,11 @@ const categoryFilter = ref<number | null>(null)
 const brandFilter = ref<number | null>(null)
 const minPrice = ref<number>(PRICE_MIN)
 const maxPrice = ref<number>(PRICE_MAX)
+const minRatingFilter = ref<number | null>(null)
 const sortFilter = ref<string>('')
+
+const minPercent = computed(() => ((minPrice.value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100)
+const maxPercent = computed(() => ((maxPrice.value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100)
 
 const controller = useListController<Product>({
   initialPageSize: 12,
@@ -124,6 +139,7 @@ const controller = useListController<Product>({
       brand_id: (filters.brand_id as number | undefined) ?? undefined,
       min_price: (filters.min_price as number | undefined) ?? undefined,
       max_price: (filters.max_price as number | undefined) ?? undefined,
+      min_rating: (filters.min_rating as number | undefined) ?? undefined,
       sort: (filters.sort as string | undefined) ?? undefined,
     }
     const response = await getProducts(query.page, query.pageSize, params, signal)
@@ -139,6 +155,11 @@ function onCategoryFilterChange(value: number | null) {
 function onBrandFilterChange(value: number | null) {
   brandFilter.value = value
   controller.setFilter('brand_id', value ?? undefined)
+}
+
+function onMinRatingChange(value: number | null) {
+  minRatingFilter.value = value
+  controller.setFilter('min_rating', value ?? undefined)
 }
 
 function onMinPriceChange() {
@@ -162,6 +183,7 @@ function clearAll() {
   brandFilter.value = null
   minPrice.value = PRICE_MIN
   maxPrice.value = PRICE_MAX
+  minRatingFilter.value = null
   sortFilter.value = ''
   controller.reset()
 }
@@ -226,6 +248,19 @@ const activeChips = computed<FilterChip[]>(() => {
     })
   }
 
+  const minRatingValue = filters.min_rating as number | undefined
+  if (minRatingValue !== undefined) {
+    const ratingLabel = minRatingValue === 5 ? '5 Stars' : `${minRatingValue} Stars & Up`
+    chips.push({
+      key: 'min_rating',
+      label: `Rating: ${ratingLabel}`,
+      remove: () => {
+        minRatingFilter.value = null
+        controller.setFilter('min_rating', undefined)
+      },
+    })
+  }
+
   const sort = filters.sort as string | undefined
   if (sort) {
     const option = sortOptions.find((item) => item.value === sort)
@@ -243,3 +278,73 @@ const activeChips = computed<FilterChip[]>(() => {
 })
 
 </script>
+
+<style scoped>
+.price-slider {
+  position: relative;
+  height: 1.25rem;
+}
+
+.price-slider-track {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background-color: var(--color-base-300, #d1d5db);
+}
+
+.price-slider-fill {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background-color: currentColor;
+  color: inherit;
+}
+
+.price-slider-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.price-slider-input::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.price-slider-input::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 0;
+  border-radius: 9999px;
+  background-color: currentColor;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--color-base-100, #fff);
+}
+
+.price-slider-input::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.price-slider-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 9999px;
+  background-color: currentColor;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--color-base-100, #fff);
+}
+</style>

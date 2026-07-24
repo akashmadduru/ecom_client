@@ -68,6 +68,7 @@ export async function getProducts(
       category_id: filters.category_id || undefined,
       min_price: filters.min_price || undefined,
       max_price: filters.max_price || undefined,
+      min_rating: filters.min_rating || undefined,
       sort: filters.sort || undefined,
     },
     signal,

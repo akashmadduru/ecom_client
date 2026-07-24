@@ -8,10 +8,8 @@
 }
 
 /*
- * Ecommerce light theme — flat & minimal, fresh mint/lime brand accent
- * (bento-hero palette: #F3F8EE / #E9F2DF / #D8E8C9 / #C6F135). Primary/secondary
- * are deep-olive derivatives of the same hue, chosen for WCAG AA text contrast —
- * see src/assets/main.css history / PR notes for the contrast-ratio math.
+ * Ecommerce light theme — flat & minimal, white/gray duotone brand accent.
+ * Primary/secondary/accent are all neutral greys, chosen for WCAG AA text contrast.
  * daisyUI v5 CSS-based theme (see https://daisyui.com/docs/themes/).
  */
 @plugin "daisyui/theme" {
@@ -20,31 +18,29 @@
   prefersdark: false;
   color-scheme: light;
 
-  /* Surfaces: pale mint page, light sage cards, soft moss-green section + border tones */
-  --color-base-100: #f3f8ee;
-  --color-base-200: #e9f2df;
-  --color-base-300: #d8e8c9;
-  --color-base-content: #1c2115; /* near-black warm charcoal, not pure black */
+  /* Surfaces: white page, light grey cards, soft grey section + border tones */
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f4f5;
+  --color-base-300: #e4e4e7;
+  --color-base-content: #18181b; /* near-black warm charcoal, not pure black */
 
-  /* Brand accent — deep olive, derived from the hero's lime hue at
-     ~5.49:1 contrast against base-100 (and against primary-content) for legible
-     text/buttons/links, with margin above the 4.5:1 AA floor. */
-  --color-primary: #5a6b12;
-  --color-primary-content: #f6faec;
+  /* Brand accent — near-black grey, high contrast against base-100 for legible
+     text/buttons/links, well above the 4.5:1 AA floor. */
+  --color-primary: #27272a;
+  --color-primary-content: #fafafa;
 
-  /* Brand accent — muted mid-tone olive-green: lighter/less saturated than primary,
-     darker than base-300, AA contrast with its dark content color. */
-  --color-secondary: #93b566;
-  --color-secondary-content: #23330d;
+  /* Brand accent — muted mid-tone grey: lighter than primary, darker than base-300,
+     AA contrast with its dark content color. */
+  --color-secondary: #a1a1aa;
+  --color-secondary-content: #18181b;
 
-  /* Decorative/tint accent — the palette's most saturated lime, used for
-     badges/hover fills/gradients only, never as text-bearing button/link color
-     (fails AA on the light base at ~1.2:1; ~12.5:1 dark-on-lime when used as a fill). */
-  --color-accent: #c6f135;
-  --color-accent-content: #1c2115;
+  /* Decorative/tint accent — a light neutral grey, used for
+     badges/hover fills only, paired with dark content text for contrast. */
+  --color-accent: #d4d4d8;
+  --color-accent-content: #18181b;
 
-  --color-neutral: #1c2115;
-  --color-neutral-content: #f3f8ee;
+  --color-neutral: #18181b;
+  --color-neutral-content: #fafafa;
 
   --color-info: #2b7fb8;
   --color-info-content: #f2fbff;
@@ -72,17 +68,14 @@
 
   /* Single source of truth for the app's soft rounded-shadow treatment
    * (cards, tiles, panels) — decimal of --color-neutral (#1c2115). */
-  --shadow-soft-rest: 0 1px 2px rgba(28, 33, 21, 0.04);
-  --shadow-soft-hover: 0 8px 20px rgba(28, 33, 21, 0.08);
+  --shadow-soft-rest: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+  --shadow-soft-hover: 0 12px 28px rgba(24, 24, 27, 0.12), 0 4px 10px rgba(24, 24, 27, 0.06);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(90, 107, 18, 0.08), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(147, 181, 102, 0.1), transparent 32%),
-    linear-gradient(135deg, #fbfdf9 0%, #f9fbf4 50%, #fafcf7 100%);
+  background: #e8e9eb;
   color: var(--color-base-content);
 }
 
@@ -102,9 +95,14 @@ body {
   border-radius: var(--radius-field);
 }
 
-.card,
 .navbar {
   background: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+  box-shadow: var(--shadow-soft-rest);
+}
+
+.card {
+  background: color-mix(in srgb, var(--color-base-100) 92%, transparent);
   border: 1px solid var(--color-base-300);
   box-shadow: var(--shadow-soft-rest);
 }
@@ -152,14 +150,14 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6f8316 0%, #5a6b12 100%);
+  background: linear-gradient(135deg, #3f3f46 0%, #27272a 100%);
   border: none;
-  color: #f6faec;
-  box-shadow: 0 2px 6px rgba(90, 107, 18, 0.25);
+  color: #fafafa;
+  box-shadow: 0 2px 6px rgba(24, 24, 27, 0.25);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 4px 12px rgba(90, 107, 18, 0.3);
+  box-shadow: 0 4px 12px rgba(24, 24, 27, 0.3);
 }
 
 .btn-outline,

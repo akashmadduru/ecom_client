@@ -1,16 +1,13 @@
 <template>
   <article
     class="flex flex-col gap-4 justify-between cusror-pointer card group relative h-full overflow-hidden transition-all duration-300 ease-out">
-    <div
-      class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-    </div>
     <button
       class="absolute right-4 top-4 z-20 rounded-full border border-black/10 bg-black/45 p-2 text-sm text-white transition-transform duration-300 hover:scale-105"
       @click.stop.prevent="toggleWishlist">
       {{ isWishlisted ? '♥' : '♡' }}
     </button>
     <AppImage :src="product.image_urls" alt=""
-      img-class="h-44 w-full rounded-[1.1rem] rounded-b-none object-cover transition-all duration-500 ease-out group-hover:brightness-200" />
+      img-class="h-44 w-full rounded-[1.1rem] rounded-b-none object-cover transition-all duration-500 ease-out" />
     <div class="card-body relative z-10 space-y-3">
       <div class="flex items-center justify-between gap-2">
         <span class="eyebrow-pill eyebrow-pill-sm">{{ product.category }}</span>
